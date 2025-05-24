@@ -1,3 +1,6 @@
 [submodule "PendlePrincipalToken/lib/forge-std"]
 	path = PendlePrincipalToken/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "PendleStaking/lib/forge-std"]
+	path = PendleStaking/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
