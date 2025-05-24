@@ -6,4 +6,4 @@ evm_version = "paris"
 via_ir = true
 
 [compiler.solc]
-remappings = ["@openzeppelin/=PendlePrincipalToken/@openzeppelin/"]
+remappings = ["@openzeppelin/=@openzeppelin/"]
