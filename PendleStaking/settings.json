@@ -1,0 +1,23 @@
+{
+	"optimizer": {
+		"enabled": true,
+		"runs": 100
+	},
+	"outputSelection": {
+		"*": {
+			"*": [
+				"evm.bytecode",
+				"evm.deployedBytecode",
+				"devdoc",
+				"userdoc",
+				"metadata",
+				"abi"
+			]
+		}
+	},
+	"libraries": {
+		"contracts/libraries/ERC20FactoryLib.sol": {
+			"ERC20FactoryLib": "0xae8e4bc88f792297a808cb5f32d4950fbbd8aeba"
+		}
+	}
+}
