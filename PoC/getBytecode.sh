@@ -9,8 +9,8 @@ else
     FILE_PREFIX="${INPUT_DATA:0:8}"
 fi
 
-mkdir -p bytecode
-OUTPUT_FILE="bytecode/${FILE_PREFIX}.hex"
+mkdir -p PoC/bytecode
+OUTPUT_FILE="PoC/bytecode/${FILE_PREFIX}.hex"
 
 echo "$INPUT_DATA" > "$OUTPUT_FILE"
 echo "Bytecode saved to $OUTPUT_FILE"
