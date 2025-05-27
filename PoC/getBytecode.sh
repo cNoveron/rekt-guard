@@ -4,9 +4,9 @@ INPUT_DATA="$(cast tx $TX_HASH input --rpc-url $RPC_URL)"
 
 # Extract the first 8 characters (4 bytes) after '0x' if present
 if [[ "$INPUT_DATA" == 0x* ]]; then
-    FILE_PREFIX="${INPUT_DATA:2:8}"
+    FILE_PREFIX="${TX_HASH:2:8}"
 else
-    FILE_PREFIX="${INPUT_DATA:0:8}"
+    FILE_PREFIX="${TX_HASH:0:8}"
 fi
 
 mkdir -p PoC/bytecode
