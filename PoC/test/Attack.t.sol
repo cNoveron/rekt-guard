@@ -6,6 +6,12 @@ import "./Cheatsheet.sol";
 
 import "../src/interfaces/pendle/PendleYieldContractFactory.sol";
 import "../src/interfaces/pendle/PendleYieldToken.sol";
+import "../src/interfaces/pendle/PendleRouterV4.sol";
+import "../src/interfaces/pendle/PendleMarketRegisterHelper.sol";
+import "../src/interfaces/pendle/PendleMarketDepositHelper.sol";
+import "../src/interfaces/pendle/PendleStaking.sol";
+import "../src/interfaces/pendle/PendleMarketFactoryV3.sol";
+
 
 contract AttackingContract is Test {
     string public name = 'Evil SY Token'; // These params don't really matter
