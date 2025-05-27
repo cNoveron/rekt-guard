@@ -7,7 +7,7 @@ import "./Cheatsheet.sol";
 import "../src/interfaces/pendle/PendleYieldContractFactory.sol";
 import "../src/interfaces/pendle/PendleYieldToken.sol";
 
-contract AttackingContract {
+contract AttackingContract is Test {
     string public name = 'Evil SY Token'; // These params don't really matter
     string public symbol = 'EVIL';
     uint8 public immutable decimals = 18;
