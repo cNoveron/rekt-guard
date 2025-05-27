@@ -1,12 +1,3 @@
-[submodule "PendlePrincipalToken/lib/forge-std"]
-	path = PendlePrincipalToken/lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
-[submodule "PendleStaking/lib/forge-std"]
-	path = PendleStaking/lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
-[submodule "PendleMarketV3/lib/forge-std"]
-	path = PendleMarketV3/lib/forge-std
-	url = https://github.com/foundry-rs/forge-std
 [submodule "PoC/lib/forge-std"]
 	path = PoC/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
