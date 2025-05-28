@@ -21,7 +21,7 @@ The Penpie hack was a sophisticated attack that exploited the reward distributio
    - Deploy malicious SY token contract
    - Create Principal Token (PT) and Yield Token (YT) using the evil SY
    - Create a fake Pendle market with manipulated parameters
-   - Register the fake market with Penpie
+   - Register the fake market with Penpie (exploiting permissionless registration)
 
 2. **Preparation Phase**:
    - Mint fake tokens to establish initial state
@@ -30,14 +30,26 @@ The Penpie hack was a sophisticated attack that exploited the reward distributio
 
 3. **Execution Phase**:
    - Take flash loans of agETH and rswETH from Balancer
-   - Trigger reward harvesting on the fake market
+   - Trigger reward harvesting on the fake market via `PendleStakingBaseUpg::batchHarvestMarketRewards()`
+   - **Reentrancy Exploit**: During the reward harvesting process, the malicious SY contract re-enters the `PendleStakingBaseUpg::depositMarket()` function
    - The malicious `claimRewards` function:
      - Converts flash-loaned tokens to SY tokens
-     - Deposits them into legitimate Pendle markets
-     - Claims rewards from Penpie
-   - Withdraw the deposited amounts plus rewards
+     - Repeatedly deposits them into legitimate Pendle markets through reentrancy
+     - Manipulates reward token amounts sent to the fake market depositor (the attacker)
+     - Claims inflated rewards from Penpie
+   - Withdraw the deposited amounts plus manipulated rewards
    - Convert back to original tokens
    - Repay flash loans and keep the profit
+
+### Root Cause Analysis
+
+The attack exploited two key vulnerabilities:
+
+1. **Reentrancy Vulnerability**: The `PendleStakingBaseUpg::batchHarvestMarketRewards()` function lacked proper reentrancy protection, allowing the malicious SY contract to re-enter `PendleStakingBaseUpg::depositMarket()` during reward harvesting. This enabled the attacker to repeatedly add new deposits sourced from flash loans and manipulate reward calculations.
+
+2. **Permissionless Registration Design**: While Penpie's open system for permissionless registration of new Pendle markets is conceptually sound, it enabled the attacker to register a fake Pendle market with a malicious SY contract. This design choice, combined with insufficient validation of market authenticity, provided the entry point for the exploit.
+
+The combination of these factors allowed the attacker to manipulate the reward distribution mechanism and drain funds from legitimate users.
 
 ## Repository Structure
 
