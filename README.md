@@ -1,6 +1,6 @@
-# Penpie Hack Reproduction
+# Penpie Hack Post Mortem Audit
 
-This repository contains a proof-of-concept (PoC) reproduction of the Penpie protocol hack that occurred on September 3, 2024. The attack exploited vulnerabilities in the Pendle and Penpie integration, resulting in approximately $27 million in losses.
+This repository contains a proof-of-concept (PoC) of the Penpie protocol hack that occurred on September 3, 2024. The attack exploited vulnerabilities in the Pendle and Penpie integration, resulting in approximately $27 million USD in losses.
 
 ## Overview
 
@@ -180,6 +180,85 @@ The vulnerability was patched by implementing proper validation of market authen
 2. **Reward Token Verification**: Ensure reward tokens match expected SY tokens
 3. **Access Controls**: Implement stricter access controls for reward claiming
 
+## Prevention Strategies
+
+This attack could have been prevented through defensive measures implemented by any of the three protocols involved:
+
+### Penpie Protocol Defenses
+
+1. **Reentrancy Protection**:
+   - Implement proper reentrancy guards on `batchHarvestMarketRewards()` and `depositMarket()` functions
+   - Use OpenZeppelin's `ReentrancyGuard` or similar patterns
+   - Follow checks-effects-interactions pattern
+
+2. **Market Validation**:
+   - Implement a whitelist of verified Pendle markets instead of permissionless registration
+   - Add validation to ensure registered markets are authentic Pendle contracts
+   - Verify that SY tokens in markets are legitimate and not malicious contracts
+
+3. **Reward Token Verification**:
+   - Validate that reward tokens returned by markets match expected SY tokens
+   - Implement sanity checks on reward amounts to detect anomalous distributions
+   - Add rate limiting on reward claims per market
+
+4. **Access Controls**:
+   - Implement time delays for new market registrations
+   - Require governance approval for new market additions
+   - Add emergency pause functionality for suspicious activity
+
+### Pendle Protocol Defenses
+
+1. **Market Factory Validation**:
+   - Add stricter validation in `createNewMarket()` to ensure SY tokens are legitimate
+   - Implement checks to prevent creation of markets with malicious SY contracts
+   - Validate that SY tokens implement expected interfaces correctly
+
+2. **SY Token Standards**:
+   - Enforce stricter standards for SY token implementations
+   - Add validation for `getRewardTokens()` and `claimRewards()` return values
+   - Implement checks to ensure SY tokens don't return arbitrary reward tokens
+
+3. **Market Registration Controls**:
+   - Add approval mechanisms for market registration with external protocols
+   - Implement monitoring for unusual market behavior
+   - Provide tools for external protocols to validate market authenticity
+
+### Balancer Protocol Defenses
+
+1. **Flash Loan Monitoring**:
+   - Implement monitoring for flash loans used in complex DeFi interactions
+   - Add alerts for flash loans that interact with multiple protocols in single transaction
+   - Consider rate limiting or cooling periods for large flash loans
+
+2. **Recipient Validation**:
+   - Add optional validation mechanisms for flash loan recipients
+   - Implement reputation systems for frequent flash loan users
+   - Provide tools to detect potentially malicious flash loan patterns
+
+3. **Integration Safeguards**:
+   - Offer integration guidelines for protocols using flash loans
+   - Provide security recommendations for flash loan recipients
+   - Consider implementing circuit breakers for unusual activity patterns
+
+### Cross-Protocol Considerations
+
+1. **Standardized Security Practices**:
+   - Establish industry standards for cross-protocol integrations
+   - Implement shared security frameworks for DeFi composability
+   - Create common validation patterns for external contract interactions
+
+2. **Monitoring and Alerting**:
+   - Implement cross-protocol monitoring for unusual transaction patterns
+   - Share threat intelligence between protocols
+   - Establish rapid response mechanisms for detected attacks
+
+3. **Economic Safeguards**:
+   - Implement economic penalties for malicious behavior
+   - Add bonding requirements for market creators
+   - Consider insurance mechanisms for cross-protocol risks
+
+The most effective prevention would have been **Penpie implementing proper reentrancy protection**, as this was the core vulnerability that enabled the attack. However, defense-in-depth approaches from all protocols would provide the most robust protection against sophisticated attacks.
+
 ## Disclaimer
 
 This repository is for educational and research purposes only. The code demonstrates a historical vulnerability that has been patched. Do not use this code for any malicious purposes.
@@ -190,3 +269,13 @@ This repository is for educational and research purposes only. The code demonstr
 - [Pendle Finance](https://www.pendle.finance/)
 - [Original Attack Analysis](https://rekt.news/penpie-rekt/)
 - [Foundry Documentation](https://book.getfoundry.sh/)
+
+# Solution Architecture
+
+My proposed solution involves using Certora Prover API to scan for re-entrancy vulnerabilities in the scope of any contract involved in the execution of transactions that make use flashloans.
+
+First, a Foundry back-end service compiles all the contract addresses involved in the internal txs. This service makes use of a service that provides contract names, ABIs and source codes, the already profiled contracts are sourced from a low-latency DB (Redis or anything faster), and the unkown ones are attempted to be sourced from Etherscan API. If none of the previous methods work (i.e. unknown and unverified contracts), then the whole (Foundry) `cast run` outputs are set to be analyzed by an LLM in search for suspicious behaviors.
+
+For the cases where the source code is known, such source codes should be analyzed against a set of well-known invariants relevant to the smart contract's ontology. Such sets of invariants should be sourced from an Invariant Knowledgebase Service which in turn actively collects invariants and their relevant contexts as fed by human auditors.
+
+![Solution Diagram](images/solution-architecture-diagram.png "Solution")
