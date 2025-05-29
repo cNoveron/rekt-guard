@@ -128,26 +128,21 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
             </div>
           )}
 
-          {debugTxResponse.contracts && debugTxResponse.contracts.length > 0 && (
+          {addresses && addresses.length > 0 && (
             <div className="contracts-involved">
               <h4>Contracts Involved</h4>
               <div className="contracts-list">
-                {debugTxResponse.contracts.map((contract: any, index: number) => (
+                {addresses.map((address: string, index: number) => (
                   <div key={index} className="contract-item">
                     <div className="contract-address">
                       <strong>Address:</strong>
-                      <code>{contract.address}</code>
+                      <code>{address}</code>
                     </div>
-                    {contract.contract_name && (
+                    {/* {contract.contract_name && (
                       <div className="contract-name">
                         <strong>Name:</strong> {contract.contract_name}
                       </div>
-                    )}
-                    {contract.standard && (
-                      <div className="contract-standard">
-                        <strong>Standard:</strong> {contract.standard}
-                      </div>
-                    )}
+                    )} */}
                   </div>
                 ))}
               </div>
