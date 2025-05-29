@@ -98,7 +98,7 @@ export const tenderlyAPI = {
   async getTransactionData(txHash: string): Promise<any> {
     try {
       // Use Infura or Alchemy as a fallback RPC provider
-      const provider = new ethers.JsonRpcProvider('https://eth-mainnet.g.alchemy.com/v2/demo');
+      const provider = new ethers.JsonRpcProvider(`https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`);
 
       // Fetch the transaction and receipt
       const [tx, receipt] = await Promise.all([
