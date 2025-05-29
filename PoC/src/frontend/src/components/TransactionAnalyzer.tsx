@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { tenderlyAPI } from './TenderlyDebugger';
+import { etherscanAPI } from './EtherscanAPI';
 
 interface TransactionAnalyzerProps {
   txHash: string;
@@ -15,7 +16,10 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [debugTxResponse, setDebugTxResponse] = useState<any>(null);
+  const [addresses, setAddresses] = useState<string[]| null>(null);
   const [traceData, setTraceData] = useState<any>(null);
+  const [basicContractData, setBasicContractData] = useState<[string, string][]>([]);
+  const [contractDataLoading, setContractDataLoading] = useState(false);
 
   const analyzeTransaction = async () => {
     setLoading(true);
@@ -36,6 +40,45 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
       setLoading(false);
     }
   };
+
+  const getTraceData = useCallback(async () => {
+    const trace = await tenderlyAPI.getTransactionTrace(debugTxResponse.simulation.id)
+    setTraceData(trace);
+    onDebuggerTrace(trace);
+  }, [debugTxResponse?.simulation?.id, onDebuggerTrace]);
+
+  useEffect(() => {
+    if (!debugTxResponse) return
+    let { simulation } = debugTxResponse;
+    if (!simulation) return
+    if (simulation?.id) {
+      console.log('Fetching trace for simulation:', debugTxResponse.simulation.id);
+      getTraceData()
+    }
+    if (simulation?.addresses && simulation?.addresses?.length > 0) {
+      let { addresses } = simulation;
+      if (addresses.length > 0) setAddresses(addresses)
+    }
+  }, [debugTxResponse, getTraceData]);
+
+
+  const fetchContractNames = useCallback(async (addressList: string[]) => {
+    setContractDataLoading(true);
+    try {
+      const contractNames = await etherscanAPI.getMultipleContractNames(addressList);
+      console.log('Contract names:', contractNames);
+      setBasicContractData(contractNames);
+    } catch (error) {
+      console.error('Error fetching contract names:', error);
+    } finally {
+      setContractDataLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!addresses || addresses.length === 0) return;
+    fetchContractNames(addresses);
+  }, [addresses, fetchContractNames]);
 
   const formatValue = (value: string | number, decimals: number = 18): string => {
     if (value === '0x') {
@@ -131,20 +174,40 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
           {addresses && addresses.length > 0 && (
             <div className="contracts-involved">
               <h4>Contracts Involved</h4>
+              {contractDataLoading && (
+                <p className="loading-indicator">Loading contract names...</p>
+              )}
               <div className="contracts-list">
-                {addresses.map((address: string, index: number) => (
-                  <div key={index} className="contract-item">
-                    <div className="contract-address">
-                      <strong>Address:</strong>
-                      <code>{address}</code>
-                    </div>
-                    {/* {contract.contract_name && (
-                      <div className="contract-name">
-                        <strong>Name:</strong> {contract.contract_name}
+                {addresses.map((address: string, index: number) => {
+                  // Find the contract name from basicContractData
+                  const contractData = basicContractData.find(([addr, _]) => addr.toLowerCase() === address.toLowerCase());
+                  const contractName = contractData ? contractData[1] : 'Loading...';
+
+                  return (
+                    <div key={index} className="contract-item">
+                      <div className="contract-address">
+                        <strong>Address:</strong>
+                        <code>{address}</code>
                       </div>
-                    )} */}
-                  </div>
-                ))}
+                      <div className="contract-name">
+                        <strong>Name:</strong>
+                        <span className={`contract-name-value ${contractName === 'Loading...' ? 'loading' : ''}`}>
+                          {contractName}
+                        </span>
+                      </div>
+                      {contractName === 'EOA' && (
+                        <div className="contract-type">
+                          <em>Externally Owned Account</em>
+                        </div>
+                      )}
+                      {contractName === 'Unverified Contract' && (
+                        <div className="contract-type">
+                          <em>Contract not verified on Etherscan</em>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

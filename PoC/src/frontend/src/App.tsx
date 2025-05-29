@@ -6,6 +6,7 @@ import { AttackStepsViewer } from './components/AttackStepsViewer';
 import { CalldataViewer } from './components/CalldataViewer';
 import { MemoryViewer } from './components/MemoryViewer';
 import { ReturnDataViewer } from './components/ReturnDataViewer';
+import { EtherscanConfig } from './components/EtherscanAPI';
 
 const ATTACK_TX_HASH = '0x7e7f9548f301d3dd863eac94e6190cb742ab6aa9d7730549ff743bf84cbd21d1';
 
@@ -40,6 +41,12 @@ function App() {
             {ATTACK_TX_HASH}
           </a>
         </div>
+
+        {/* API Configuration Status */}
+        <div className="api-status">
+          <TenderlyDebugger />
+          <EtherscanConfig />
+        </div>
       </header>
 
       <nav className="tabs">
@@ -58,6 +65,28 @@ function App() {
         {selectedTab === 'overview' && (
           <div className="overview-section">
             <h2>Penpie Hack Overview</h2>
+
+            <div className="setup-instructions">
+              <h3>Setup Instructions</h3>
+              <div className="instructions-grid">
+                <div className="instruction-card">
+                  <h4>1. Configure Tenderly (Required)</h4>
+                  <p>Set up your Tenderly API credentials to analyze the transaction.</p>
+                  <p>Without this, transaction analysis will not work.</p>
+                </div>
+                <div className="instruction-card">
+                  <h4>2. Configure Etherscan (Optional)</h4>
+                  <p>Add <code>REACT_APP_ETHERSCAN_API_KEY</code> to your .env file for better contract name resolution.</p>
+                  <p>This improves the contract identification in the analysis.</p>
+                </div>
+                <div className="instruction-card">
+                  <h4>3. Configure Infura (Optional)</h4>
+                  <p>Add <code>REACT_APP_INFURA_API_KEY</code> to your .env file for more reliable blockchain data fetching.</p>
+                  <p>Falls back to demo endpoints if not configured.</p>
+                </div>
+              </div>
+            </div>
+
             <div className="attack-summary">
               <div className="summary-card">
                 <h3>Attack Date</h3>
@@ -152,8 +181,6 @@ function App() {
           />
         )}
       </main>
-
-      <TenderlyDebugger />
     </div>
   );
 }
