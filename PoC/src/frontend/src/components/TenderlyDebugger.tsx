@@ -160,7 +160,7 @@ export const tenderlyAPI = {
     }
   },
 
-  async waitForSimulation(simulationId: string, maxRetries: number = 10): Promise<any> {
+  async waitForSimulation(simulationId: string, maxRetries: number = 1): Promise<any> {
     const config = JSON.parse(localStorage.getItem('tenderly-config') || '{}');
 
     for (let i = 0; i < maxRetries; i++) {
