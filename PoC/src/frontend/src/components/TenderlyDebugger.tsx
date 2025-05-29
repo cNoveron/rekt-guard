@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { ethers } from 'ethers';
 
 interface TenderlyConfig {
   accountSlug: string;
@@ -94,6 +95,104 @@ export const TenderlyDebugger: React.FC = () => {
 
 // Utility function to make Tenderly API calls
 export const tenderlyAPI = {
+  async getTransactionData(txHash: string): Promise<any> {
+    try {
+      // Use Infura or Alchemy as a fallback RPC provider
+      const provider = new ethers.JsonRpcProvider('https://eth-mainnet.g.alchemy.com/v2/demo');
+
+      // Fetch the transaction and receipt
+      const [tx, receipt] = await Promise.all([
+        provider.getTransaction(txHash),
+        provider.getTransactionReceipt(txHash)
+      ]);
+
+      if (!tx) {
+        throw new Error('Transaction not found');
+      }
+
+      return {
+        transaction: tx,
+        receipt: receipt,
+        blockNumber: tx.blockNumber
+      };
+    } catch (error) {
+      console.error('Error fetching transaction data:', error);
+      throw error;
+    }
+  },
+
+  async getTransactionFromTenderly(txHash: string): Promise<any> {
+    const config = JSON.parse(localStorage.getItem('tenderly-config') || '{}');
+
+    try {
+      // Try to get transaction data directly from Tenderly
+      const response = await axios.get(
+        `https://api.tenderly.co/api/v1/account/${config.accountSlug}/project/${config.projectSlug}/transactions/${txHash}`,
+        {
+          headers: {
+            'X-Access-Key': config.accessKey
+          }
+        }
+      );
+
+      console.log('Tenderly transaction data:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.log('Failed to get transaction from Tenderly:', error.response?.status);
+
+      // Try alternative endpoint for public transactions
+      try {
+        const publicResponse = await axios.get(
+          `https://api.tenderly.co/api/v1/public-contract/1/transactions/${txHash}`,
+          {
+            headers: {
+              'X-Access-Key': config.accessKey
+            }
+          }
+        );
+
+        console.log('Tenderly public transaction data:', publicResponse.data);
+        return publicResponse.data;
+      } catch (publicError) {
+        console.log('Failed to get public transaction from Tenderly:', publicError);
+        throw error;
+      }
+    }
+  },
+
+  async waitForSimulation(simulationId: string, maxRetries: number = 10): Promise<any> {
+    const config = JSON.parse(localStorage.getItem('tenderly-config') || '{}');
+
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        const response = await axios.get(
+          `https://api.tenderly.co/api/v1/account/${config.accountSlug}/project/${config.projectSlug}/simulations/${simulationId}`,
+          {
+            headers: {
+              'X-Access-Key': config.accessKey
+            }
+          }
+        );
+
+        const simulation = response.data.simulation;
+        console.log(`Simulation ${simulationId} status:`, simulation.status);
+
+        if (simulation.status === 'success' || simulation.status === 'failed') {
+          return response.data;
+        }
+
+        // Wait 2 seconds before checking again
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.error(`Error checking simulation status (attempt ${i + 1}):`, error);
+        if (i === maxRetries - 1) throw error;
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+
+    throw new Error('Simulation did not complete within expected time');
+  },
+
   async debugTransaction(txHash: string): Promise<any> {
     const config = JSON.parse(localStorage.getItem('tenderly-config') || '{}');
 
@@ -102,17 +201,51 @@ export const tenderlyAPI = {
     }
 
     try {
+      // First, try to get the transaction directly from Tenderly (if it exists)
+      let tenderlyTxData = null;
+      try {
+        tenderlyTxData = await this.getTransactionFromTenderly(txHash);
+      } catch (error) {
+        console.log('Transaction not found in Tenderly, will simulate it');
+      }
+
+      // If we found the transaction in Tenderly and it has trace data, use it
+      if (tenderlyTxData && tenderlyTxData.transaction) {
+        console.log('Using existing Tenderly transaction data');
+        return {
+          simulation: {
+            id: `existing-${txHash}`,
+            status: 'success'
+          },
+          transaction: tenderlyTxData.transaction,
+          existing_transaction: true
+        };
+      }
+
+      // Otherwise, get transaction data from blockchain and simulate
+      const txData = await this.getTransactionData(txHash);
+      const tx = txData.transaction;
+
+      // Format the transaction for Tenderly simulation API
+      const simulationPayload = {
+        network_id: '1', // Ethereum mainnet
+        block_number: tx.blockNumber || 'latest',
+        from: tx.from,
+        to: tx.to,
+        input: tx.data || '0x',
+        gas: parseInt(tx.gasLimit?.toString() || '8000000'),
+        gas_price: parseInt(tx.gasPrice?.toString() || '0'),
+        value: parseInt(tx.value?.toString() || '0'),
+        save: true,
+        save_if_fails: true,
+        simulation_type: 'full'
+      };
+
+      console.log('Simulation payload:', simulationPayload);
+
       const response = await axios.post(
         `https://api.tenderly.co/api/v1/account/${config.accountSlug}/project/${config.projectSlug}/simulate`,
-        {
-          network_id: '1', // Ethereum mainnet
-          transaction: {
-            hash: txHash
-          },
-          save: true,
-          save_if_fails: true,
-          simulation_type: 'quick'
-        },
+        simulationPayload,
         {
           headers: {
             'X-Access-Key': config.accessKey,
@@ -121,9 +254,27 @@ export const tenderlyAPI = {
         }
       );
 
+      console.log('Simulation response:', response.data);
+
+      // Wait for simulation to complete
+      if (response.data.simulation && response.data.simulation.id) {
+        const completedSimulation = await this.waitForSimulation(response.data.simulation.id);
+        return completedSimulation;
+      }
+
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Tenderly API error:', error);
+
+      // Provide more helpful error messages
+      if (error.response?.data?.error?.message) {
+        throw new Error(`Tenderly Error: ${error.response.data.error.message}`);
+      } else if (error.response?.status === 401) {
+        throw new Error('Invalid Tenderly API credentials. Please check your access key.');
+      } else if (error.response?.status === 400) {
+        throw new Error('Invalid simulation parameters. Please check the transaction data.');
+      }
+
       throw error;
     }
   },
@@ -131,21 +282,110 @@ export const tenderlyAPI = {
   async getTransactionTrace(simulationId: string): Promise<any> {
     const config = JSON.parse(localStorage.getItem('tenderly-config') || '{}');
 
-    try {
-      const response = await axios.get(
-        `https://api.tenderly.co/api/v1/account/${config.accountSlug}/project/${config.projectSlug}/simulations/${simulationId}/debugger-trace`,
-        {
-          headers: {
-            'X-Access-Key': config.accessKey
-          }
+    // If this is an existing transaction, try to get trace data differently
+    if (simulationId.startsWith('existing-')) {
+      const txHash = simulationId.replace('existing-', '');
+      try {
+        const tenderlyData = await this.getTransactionFromTenderly(txHash);
+        if (tenderlyData.transaction && tenderlyData.transaction.call_trace) {
+          // Convert call trace to execution trace format
+          return {
+            trace: this.convertCallTraceToExecutionTrace(tenderlyData.transaction.call_trace),
+            source: 'existing_transaction'
+          };
         }
-      );
+      } catch (error) {
+        console.log('Could not get trace from existing transaction');
+      }
+    }
 
-      return response.data;
+    try {
+      // Try different possible endpoints for trace data
+      const endpoints = [
+        `https://api.tenderly.co/api/v1/account/${config.accountSlug}/project/${config.projectSlug}/simulations/${simulationId}/trace`,
+        `https://api.tenderly.co/api/v1/account/${config.accountSlug}/project/${config.projectSlug}/simulations/${simulationId}/debugger-trace`,
+        `https://api.tenderly.co/api/v1/account/${config.accountSlug}/project/${config.projectSlug}/simulations/${simulationId}/debug-trace`
+      ];
+
+      for (const endpoint of endpoints) {
+        try {
+          console.log(`Trying trace endpoint: ${endpoint}`);
+          const response = await axios.get(endpoint, {
+            headers: {
+              'X-Access-Key': config.accessKey
+            }
+          });
+
+          console.log('Trace data received:', response.data);
+          return response.data;
+        } catch (error: any) {
+          console.log(`Endpoint ${endpoint} failed:`, error.response?.status, error.response?.data);
+          // Continue to next endpoint
+        }
+      }
+
+      // If all endpoints fail, try to get the simulation data which might contain trace info
+      try {
+        console.log('Trying to get simulation data instead...');
+        const response = await axios.get(
+          `https://api.tenderly.co/api/v1/account/${config.accountSlug}/project/${config.projectSlug}/simulations/${simulationId}`,
+          {
+            headers: {
+              'X-Access-Key': config.accessKey
+            }
+          }
+        );
+
+        // Check if the simulation data contains trace information
+        if (response.data.simulation && response.data.simulation.trace) {
+          return { trace: response.data.simulation.trace };
+        }
+
+        // Return a mock trace structure if no trace is available
+        return {
+          trace: [],
+          message: 'Trace data not available. This may be due to API limitations or simulation configuration.',
+          suggestion: 'Try using a different simulation type or check if your Tenderly plan supports full trace data.'
+        };
+      } catch (simError) {
+        console.error('Failed to get simulation data:', simError);
+        throw new Error('Unable to fetch trace data from any available endpoint');
+      }
     } catch (error) {
       console.error('Tenderly trace error:', error);
       throw error;
     }
+  },
+
+  convertCallTraceToExecutionTrace(callTrace: any[]): any[] {
+    // Convert Tenderly's call trace format to something resembling execution trace
+    const executionTrace: any[] = [];
+    let stepIndex = 0;
+
+    const processCall = (call: any, depth: number = 0) => {
+      executionTrace.push({
+        pc: stepIndex++,
+        op: call.function_name || 'CALL',
+        depth: depth,
+        gas: call.gas_used || 0,
+        gasCost: call.gas_cost || 0,
+        address: call.to,
+        input: call.input,
+        output: call.output,
+        value: call.value,
+        type: 'CALL'
+      });
+
+      if (call.calls && call.calls.length > 0) {
+        call.calls.forEach((subcall: any) => processCall(subcall, depth + 1));
+      }
+    };
+
+    if (Array.isArray(callTrace)) {
+      callTrace.forEach(call => processCall(call, 0));
+    }
+
+    return executionTrace;
   },
 
   async getCallTrace(simulationId: string): Promise<any> {
@@ -162,8 +402,17 @@ export const tenderlyAPI = {
       );
 
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Tenderly call trace error:', error);
+
+      // If call trace is not available, return empty structure
+      if (error.response?.status === 404) {
+        return {
+          call_trace: [],
+          message: 'Call trace not available for this simulation'
+        };
+      }
+
       throw error;
     }
   }

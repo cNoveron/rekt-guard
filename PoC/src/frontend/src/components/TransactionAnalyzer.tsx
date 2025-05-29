@@ -24,15 +24,16 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
     try {
       // First, simulate the transaction
       console.log('Simulating transaction:', txHash);
-      const simulation = await tenderlyAPI.debugTransaction(txHash);
+      const tenderlyApi_debugTxResponse = await tenderlyAPI.debugTransaction(txHash);
+      console.log('Simulation:', tenderlyApi_debugTxResponse);
 
-      setSimulationData(simulation);
-      onTransactionData(simulation);
+      setSimulationData(tenderlyApi_debugTxResponse);
+      onTransactionData(tenderlyApi_debugTxResponse);
 
-      if (simulation.simulation && simulation.simulation.id) {
+      if (tenderlyApi_debugTxResponse.simulation && tenderlyApi_debugTxResponse.simulation.id) {
         // Get detailed trace data
-        console.log('Fetching trace for simulation:', simulation.simulation.id);
-        const trace = await tenderlyAPI.getTransactionTrace(simulation.simulation.id);
+        console.log('Fetching trace for simulation:', tenderlyApi_debugTxResponse.simulation.id);
+        const trace = await tenderlyAPI.getTransactionTrace(tenderlyApi_debugTxResponse.simulation.id);
 
         setTraceData(trace);
         onDebuggerTrace(trace);
@@ -47,6 +48,9 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
   };
 
   const formatValue = (value: string | number, decimals: number = 18): string => {
+    if (value === '0x') {
+      return '0';
+    }
     if (typeof value === 'string' && value.startsWith('0x')) {
       const bigIntValue = BigInt(value);
       const divisor = BigInt(10 ** decimals);

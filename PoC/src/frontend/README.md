@@ -1,46 +1,163 @@
-# Getting Started with Create React App
+# Penpie Hack Analysis - Tenderly Debugger
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React application for analyzing the $27M Penpie hack using Tenderly's debugger API. This tool provides step-by-step analysis of the attack transaction, including calldata, memory, and return data examination.
 
-## Available Scripts
+## About the Penpie Hack
 
-In the project directory, you can run:
+The Penpie hack occurred on September 3, 2024, resulting in approximately $27 million USD in losses. The attack exploited vulnerabilities in the Pendle and Penpie integration through:
 
-### `npm start`
+1. **Reentrancy Vulnerability**: The `batchHarvestMarketRewards()` function lacked proper reentrancy protection
+2. **Permissionless Registration**: Allowed registration of a fake Pendle market with malicious SY contract
+3. **Reward Manipulation**: Used flash loans and reentrancy to inflate reward calculations
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+**Attack Transaction**: `0x7e7f9548f301d3dd863eac94e6190cb742ab6aa9d7730549ff743bf84cbd21d1`
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Features
 
-### `npm test`
+- **Transaction Overview**: Summary of the attack mechanism and key components
+- **Tenderly Integration**: Connect to Tenderly's debugger API for detailed analysis
+- **Step-by-Step Execution**: View every opcode execution during the attack
+- **Calldata Analysis**: Decode function calls and parameters
+- **Memory Analysis**: Examine EVM memory state at each step
+- **Return Data Analysis**: Analyze function return values and outputs
+- **Attack Context**: Educational insights about each step of the attack
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Prerequisites
 
-### `npm run build`
+- Node.js (v16 or higher)
+- A [Tenderly account](https://dashboard.tenderly.co/) (free tier is sufficient)
+- Basic understanding of Ethereum transactions and smart contracts
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Setup Instructions
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. **Clone and Install Dependencies**:
+   ```bash
+   cd PoC/src/frontend
+   npm install
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. **Get Tenderly Credentials**:
+   - Sign up for a [Tenderly account](https://dashboard.tenderly.co/)
+   - Create a new project in your dashboard
+   - Go to Settings → Access Keys to generate an API key
+   - Note your account slug (username) and project slug (project name)
 
-### `npm run eject`
+3. **Start the Application**:
+   ```bash
+   npm start
+   ```
+   The application will open at `http://localhost:3000`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Usage Guide
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 1. Configure Tenderly API
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+1. Click on the Tenderly configuration section at the bottom of the page
+2. Enter your credentials:
+   - **Account Slug**: Your Tenderly username
+   - **Project Slug**: Your Tenderly project name
+   - **Access Key**: Your Tenderly API key
+3. Click "Connect to Tenderly"
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### 2. Analyze the Attack Transaction
 
-## Learn More
+1. Navigate to the **Transaction Analyzer** tab
+2. Click "Analyze with Tenderly" to start the simulation
+3. Wait for the analysis to complete (this may take 30-60 seconds)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 3. Explore the Attack Steps
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Once analysis is complete, you can explore different aspects:
+
+- **Attack Steps**: Browse through every execution step with filtering options
+- **Calldata Analysis**: Examine function calls and their parameters
+- **Memory Analysis**: View EVM memory state at each step
+- **Return Data Analysis**: Analyze function return values
+
+### 4. Understanding the Attack
+
+The application provides educational context for each step, helping you understand:
+
+- How the flash loan was initiated
+- Where reentrancy occurred
+- How rewards were manipulated
+- Key addresses and contracts involved
+
+## Troubleshooting
+
+### "From address not valid" Error
+
+This error is now fixed in the latest version. The application properly fetches transaction data and formats it correctly for Tenderly's simulation API.
+
+### "Tenderly not configured" Error
+
+Make sure you've entered your Tenderly credentials correctly and clicked "Connect to Tenderly".
+
+### Simulation Takes Too Long
+
+The analysis of complex transactions can take time. The Penpie attack transaction is particularly complex with thousands of execution steps.
+
+### Network Issues
+
+The application requires internet access to:
+- Fetch transaction data from Ethereum mainnet
+- Connect to Tenderly's API
+- Load transaction details
+
+## Technical Details
+
+### Architecture
+
+- **Frontend**: React with TypeScript
+- **Blockchain Data**: Ethers.js for transaction fetching
+- **Debugging**: Tenderly API for transaction simulation and tracing
+- **Styling**: CSS with modern design patterns
+
+### Key Components
+
+- `TenderlyDebugger`: Manages Tenderly API configuration and connection
+- `TransactionAnalyzer`: Fetches and displays transaction simulation results
+- `AttackStepsViewer`: Displays step-by-step execution trace
+- `CalldataViewer`: Analyzes and decodes function call data
+- `MemoryViewer`: Examines EVM memory state
+- `ReturnDataViewer`: Analyzes function return values
+
+### Attack Analysis Features
+
+- **Function Signature Recognition**: Identifies common DeFi function calls
+- **Address Context**: Recognizes key contracts in the attack
+- **Attack Step Identification**: Highlights critical moments in the attack
+- **Data Formatting**: Converts raw hex data to human-readable formats
+
+## Educational Value
+
+This tool is designed for educational purposes to help developers and security researchers understand:
+
+- How reentrancy attacks work in practice
+- The importance of proper access controls
+- How flash loans can amplify attacks
+- Smart contract security best practices
+
+## Contributing
+
+This tool was created to demonstrate the Penpie hack analysis. Feel free to:
+
+- Report issues or bugs
+- Suggest improvements
+- Add support for analyzing other attacks
+- Improve the educational content
+
+## Disclaimer
+
+This tool is for educational and research purposes only. The analyzed attack represents real losses and should serve as a learning opportunity to prevent similar vulnerabilities in the future.
+
+## Resources
+
+- [Penpie Official Response](https://medium.com/@penpiexyz_48110/penpie-protocol-incident-analysis-8c72b1d6e7d2)
+- [Tenderly Documentation](https://docs.tenderly.co/)
+- [Ethereum Transaction Analysis](https://etherscan.io/tx/0x7e7f9548f301d3dd863eac94e6190cb742ab6aa9d7730549ff743bf84cbd21d1)
+- [DeFi Security Best Practices](https://github.com/crytic/building-secure-contracts)
+
+## License
+
+This project is open source and available under the MIT License.
