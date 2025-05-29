@@ -14,7 +14,7 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [simulationData, setSimulationData] = useState<any>(null);
+  const [debugTxResponse, setDebugTxResponse] = useState<any>(null);
   const [traceData, setTraceData] = useState<any>(null);
 
   const analyzeTransaction = async () => {
@@ -24,21 +24,11 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
     try {
       // First, simulate the transaction
       console.log('Simulating transaction:', txHash);
-      const tenderlyApi_debugTxResponse = await tenderlyAPI.debugTransaction(txHash);
-      console.log('Simulation:', tenderlyApi_debugTxResponse);
+      const debugTx_response = await tenderlyAPI.debugTransaction(txHash);
+      console.log('Simulation:', debugTx_response);
 
-      setSimulationData(tenderlyApi_debugTxResponse);
-      onTransactionData(tenderlyApi_debugTxResponse);
-
-      if (tenderlyApi_debugTxResponse.simulation && tenderlyApi_debugTxResponse.simulation.id) {
-        // Get detailed trace data
-        console.log('Fetching trace for simulation:', tenderlyApi_debugTxResponse.simulation.id);
-        const trace = await tenderlyAPI.getTransactionTrace(tenderlyApi_debugTxResponse.simulation.id);
-
-        setTraceData(trace);
-        onDebuggerTrace(trace);
-      }
-
+      setDebugTxResponse(debugTx_response);
+      onTransactionData(debugTx_response);
     } catch (err: any) {
       setError(err.message || 'Failed to analyze transaction');
       console.error('Analysis error:', err);
@@ -103,46 +93,46 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
         </div>
       )}
 
-      {simulationData && (
+      {debugTxResponse?.simulation && (
         <div className="simulation-results">
           <h3>Simulation Results</h3>
 
           <div className="simulation-overview">
             <div className="result-card">
               <h4>Status</h4>
-              <span className={`status ${simulationData.simulation?.status || 'unknown'}`}>
-                {simulationData.simulation?.status || 'Unknown'}
+              <span className={`status ${debugTxResponse.simulation?.status || 'unknown'}`}>
+                {debugTxResponse.simulation?.status || 'Unknown'}
               </span>
             </div>
 
             <div className="result-card">
               <h4>Gas Used</h4>
-              <p>{simulationData.transaction?.gas_used?.toLocaleString() || 'N/A'}</p>
+              <p>{debugTxResponse.transaction?.gas_used?.toLocaleString() || 'N/A'}</p>
             </div>
 
             <div className="result-card">
               <h4>Gas Limit</h4>
-              <p>{simulationData.transaction?.gas_limit?.toLocaleString() || 'N/A'}</p>
+              <p>{debugTxResponse.transaction?.gas_limit?.toLocaleString() || 'N/A'}</p>
             </div>
 
             <div className="result-card">
               <h4>Block Number</h4>
-              <p>{simulationData.transaction?.block_number?.toLocaleString() || 'N/A'}</p>
+              <p>{debugTxResponse.transaction?.block_number?.toLocaleString() || 'N/A'}</p>
             </div>
           </div>
 
-          {simulationData.transaction?.value && (
+          {debugTxResponse.transaction?.value && (
             <div className="transaction-value">
               <h4>Transaction Value</h4>
-              <p>{formatValue(simulationData.transaction.value)} ETH</p>
+              <p>{formatValue(debugTxResponse.transaction.value)} ETH</p>
             </div>
           )}
 
-          {simulationData.contracts && simulationData.contracts.length > 0 && (
+          {debugTxResponse.contracts && debugTxResponse.contracts.length > 0 && (
             <div className="contracts-involved">
               <h4>Contracts Involved</h4>
               <div className="contracts-list">
-                {simulationData.contracts.map((contract: any, index: number) => (
+                {debugTxResponse.contracts.map((contract: any, index: number) => (
                   <div key={index} className="contract-item">
                     <div className="contract-address">
                       <strong>Address:</strong>
@@ -164,10 +154,10 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
             </div>
           )}
 
-          {simulationData.generated_access_list && (
+          {debugTxResponse.generated_access_list && (
             <div className="access-list">
               <h4>Access List</h4>
-              <pre>{JSON.stringify(simulationData.generated_access_list, null, 2)}</pre>
+              <pre>{JSON.stringify(debugTxResponse.generated_access_list, null, 2)}</pre>
             </div>
           )}
         </div>
