@@ -177,7 +177,7 @@ export const tenderlyAPI = {
         const simulation = response.data.simulation;
         console.log(`Simulation ${simulationId} status:`, simulation.status);
 
-        if (simulation.status === 'success' || simulation.status === 'failed') {
+        if (simulation.status) {
           return response.data;
         }
 
