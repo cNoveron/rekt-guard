@@ -278,4 +278,6 @@ First, a Foundry back-end service compiles all the contract addresses involved i
 
 For the cases where the source code is known, such source codes should be analyzed against a set of well-known invariants relevant to the smart contract's ontology. Such sets of invariants should be sourced from an Invariant Knowledgebase Service which in turn actively collects invariants and their relevant contexts as fed by human auditors.
 
+This solution makes it possible to block malicious transactions before they are executed on-chain. However, one important consideration requires cooperation between DeFi protocols and flashloan providers.
+
 ![Solution Diagram](images/solution-architecture-diagram.png "Solution")
