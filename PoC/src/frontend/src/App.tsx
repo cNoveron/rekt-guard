@@ -8,6 +8,17 @@ import { MemoryViewer } from './components/MemoryViewer';
 import { ReturnDataViewer } from './components/ReturnDataViewer';
 import { EtherscanConfig } from './components/EtherscanAPI';
 import { CacheManager } from './components/CacheManager';
+import { BundleSelector } from './components/BundleSelector';
+
+interface AnalysisBundle {
+  id: string;
+  timestamp: number;
+  txHash: string;
+  transactionData: any;
+  debuggerTrace: any;
+  contractData: [string, string][];
+  description?: string;
+}
 
 const ATTACK_TX_HASH = '0x7e7f9548f301d3dd863eac94e6190cb742ab6aa9d7730549ff743bf84cbd21d1';
 
@@ -16,6 +27,22 @@ function App() {
   const [transactionData, setTransactionData] = useState<any>(null);
   const [debuggerTrace, setDebuggerTrace] = useState<any>(null);
   const [selectedStep, setSelectedStep] = useState<number>(0);
+  const [loadedBundle, setLoadedBundle] = useState<AnalysisBundle | null>(null);
+  const [currentBundleId, setCurrentBundleId] = useState<string | null>(null);
+
+  const handleBundleSelected = (bundle: AnalysisBundle) => {
+    console.log('Loading bundle:', bundle.id);
+    setLoadedBundle(bundle);
+    setCurrentBundleId(bundle.id);
+
+    // Switch to analyzer tab to show the loaded data
+    setSelectedTab('analyzer');
+  };
+
+  const handleBundleSaved = (bundleId: string) => {
+    setCurrentBundleId(bundleId);
+    console.log('Bundle saved with ID:', bundleId);
+  };
 
   const tabs = [
     { id: 'overview', label: 'Attack Overview' },
@@ -48,6 +75,10 @@ function App() {
           <TenderlyDebugger />
           <EtherscanConfig />
           <CacheManager />
+          <BundleSelector
+            onBundleSelected={handleBundleSelected}
+            currentBundleId={currentBundleId || undefined}
+          />
         </div>
       </header>
 
@@ -151,6 +182,8 @@ function App() {
             txHash={ATTACK_TX_HASH}
             onTransactionData={setTransactionData}
             onDebuggerTrace={setDebuggerTrace}
+            loadedBundle={loadedBundle}
+            onBundleSaved={handleBundleSaved}
           />
         )}
 

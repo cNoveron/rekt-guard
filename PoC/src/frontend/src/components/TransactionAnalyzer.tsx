@@ -1,17 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { tenderlyAPI } from './TenderlyDebugger';
 import { etherscanAPI } from './EtherscanAPI';
+import { bundleManager } from '../utils/ApiCache';
+
+interface AnalysisBundle {
+  id: string;
+  timestamp: number;
+  txHash: string;
+  transactionData: any;
+  debuggerTrace: any;
+  contractData: [string, string][];
+  description?: string;
+}
 
 interface TransactionAnalyzerProps {
   txHash: string;
   onTransactionData: (data: any) => void;
   onDebuggerTrace: (trace: any) => void;
+  loadedBundle?: AnalysisBundle | null;
+  onBundleSaved?: (bundleId: string) => void;
 }
 
 export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
   txHash,
   onTransactionData,
-  onDebuggerTrace
+  onDebuggerTrace,
+  loadedBundle,
+  onBundleSaved
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -20,10 +35,62 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
   const [traceData, setTraceData] = useState<any>(null);
   const [basicContractData, setBasicContractData] = useState<[string, string][]>([]);
   const [contractDataLoading, setContractDataLoading] = useState(false);
+  const [currentBundleId, setCurrentBundleId] = useState<string | null>(null);
+  const [bundleSaving, setBundleSaving] = useState(false);
+
+  // Load bundle data when a bundle is provided
+  useEffect(() => {
+    if (loadedBundle) {
+      console.log('Loading bundle data:', loadedBundle.id);
+      setDebugTxResponse(loadedBundle.transactionData);
+      setTraceData(loadedBundle.debuggerTrace);
+      setBasicContractData(loadedBundle.contractData);
+      setCurrentBundleId(loadedBundle.id);
+
+      // Extract addresses from transaction data
+      if (loadedBundle.transactionData?.simulation?.addresses) {
+        setAddresses(loadedBundle.transactionData.simulation.addresses);
+      }
+
+      // Notify parent components
+      onTransactionData(loadedBundle.transactionData);
+      onDebuggerTrace(loadedBundle.debuggerTrace);
+
+      setError(null);
+    }
+  }, [loadedBundle, onTransactionData, onDebuggerTrace]);
+
+  const saveCurrentAnalysisAsBundle = async () => {
+    if (!debugTxResponse || !traceData) {
+      console.warn('No analysis data to save');
+      return;
+    }
+
+    setBundleSaving(true);
+    try {
+      const description = `Analysis of ${txHash.slice(0, 10)}... - ${new Date().toLocaleString()}`;
+      const bundleId = bundleManager.saveBundleData(
+        txHash,
+        debugTxResponse,
+        traceData,
+        basicContractData,
+        description
+      );
+
+      setCurrentBundleId(bundleId);
+      onBundleSaved?.(bundleId);
+      console.log('Analysis bundle saved successfully:', bundleId);
+    } catch (error) {
+      console.error('Failed to save analysis bundle:', error);
+    } finally {
+      setBundleSaving(false);
+    }
+  };
 
   const analyzeTransaction = async () => {
     setLoading(true);
     setError(null);
+    setCurrentBundleId(null); // Clear any loaded bundle when doing fresh analysis
 
     try {
       // First, simulate the transaction
@@ -61,7 +128,6 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
     }
   }, [debugTxResponse, getTraceData]);
 
-
   const fetchContractNames = useCallback(async (addressList: string[]) => {
     setContractDataLoading(true);
     try {
@@ -77,8 +143,19 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
 
   useEffect(() => {
     if (!addresses || addresses.length === 0) return;
-    fetchContractNames(addresses);
-  }, [addresses, fetchContractNames]);
+    // Only fetch contract names if we don't already have them (from loaded bundle)
+    if (basicContractData.length === 0) {
+      fetchContractNames(addresses);
+    }
+  }, [addresses, fetchContractNames, basicContractData.length]);
+
+  // Auto-save bundle when analysis is complete
+  useEffect(() => {
+    if (debugTxResponse && traceData && basicContractData.length > 0 && !currentBundleId && !loadedBundle) {
+      // Only auto-save if this is a fresh analysis (not a loaded bundle)
+      saveCurrentAnalysisAsBundle();
+    }
+  }, [debugTxResponse, traceData, basicContractData, currentBundleId, loadedBundle]);
 
   const formatValue = (value: string | number, decimals: number = 18): string => {
     if (value === '0x') {
@@ -111,13 +188,34 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
     <div className="transaction-analyzer">
       <div className="analyzer-header">
         <h2>Transaction Analysis</h2>
-        <button
-          onClick={analyzeTransaction}
-          disabled={loading}
-          className="analyze-button"
-        >
-          {loading ? 'Analyzing...' : 'Analyze with Tenderly'}
-        </button>
+        <div className="analyzer-actions">
+          <button
+            onClick={analyzeTransaction}
+            disabled={loading}
+            className="analyze-button"
+          >
+            {loading ? 'Analyzing...' : 'Analyze with Tenderly'}
+          </button>
+
+          {(debugTxResponse && traceData) && (
+            <button
+              onClick={saveCurrentAnalysisAsBundle}
+              disabled={bundleSaving}
+              className="save-bundle-button"
+              title="Save current analysis as a bundle"
+            >
+              {bundleSaving ? 'Saving...' : '💾 Save Bundle'}
+            </button>
+          )}
+        </div>
+
+        {currentBundleId && (
+          <div className="bundle-status">
+            <span className="bundle-indicator">
+              📦 {loadedBundle ? 'Loaded from bundle' : 'Saved as bundle'}: {currentBundleId.split('_')[0].slice(0, 10)}...
+            </span>
+          </div>
+        )}
       </div>
 
       {error && (
@@ -226,13 +324,17 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
           <h3>Execution Trace Summary</h3>
           <div className="trace-stats">
             <div className="stat-item">
-              <strong>Total Steps:</strong> {traceData.trace?.length || 0}
+              <strong>Total Steps:</strong> {Array.isArray(traceData.trace) ? traceData.trace.length : 0}
             </div>
             <div className="stat-item">
-              <strong>Call Depth:</strong> {Math.max(...(traceData.trace?.map((step: any) => step.depth) || [0]))}
+              <strong>Call Depth:</strong> {Array.isArray(traceData.trace) && traceData.trace.length > 0
+                ? Math.max(...traceData.trace.map((step: any) => step.depth || 0))
+                : 0}
             </div>
             <div className="stat-item">
-              <strong>Opcodes Used:</strong> {new Set(traceData.trace?.map((step: any) => step.op) || []).size}
+              <strong>Opcodes Used:</strong> {Array.isArray(traceData.trace) && traceData.trace.length > 0
+                ? new Set(traceData.trace.map((step: any) => step.op || 'UNKNOWN')).size
+                : 0}
             </div>
           </div>
 

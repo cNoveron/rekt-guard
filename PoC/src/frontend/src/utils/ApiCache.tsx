@@ -254,4 +254,111 @@ export const simulationCache = new ApiCache({
   keyPrefix: 'sim_cache_'
 });
 
+// Bundle management for complete analysis sessions
+interface AnalysisBundle {
+  id: string;
+  timestamp: number;
+  txHash: string;
+  transactionData: any;
+  debuggerTrace: any;
+  contractData: [string, string][];
+  description?: string;
+}
+
+class BundleManager {
+  private keyPrefix = 'analysis_bundle_';
+
+  saveBundleData(txHash: string, transactionData: any, debuggerTrace: any, contractData: [string, string][], description?: string): string {
+    const bundleId = `${txHash}_${Date.now()}`;
+    const bundle: AnalysisBundle = {
+      id: bundleId,
+      timestamp: Date.now(),
+      txHash,
+      transactionData,
+      debuggerTrace,
+      contractData,
+      description: description || `Analysis of ${txHash.slice(0, 10)}...`
+    };
+
+    try {
+      localStorage.setItem(`${this.keyPrefix}${bundleId}`, JSON.stringify(bundle));
+      console.log(`Analysis bundle saved: ${bundleId}`);
+      return bundleId;
+    } catch (error) {
+      console.error('Failed to save analysis bundle:', error);
+      throw error;
+    }
+  }
+
+  loadBundle(bundleId: string): AnalysisBundle | null {
+    try {
+      const bundleData = localStorage.getItem(`${this.keyPrefix}${bundleId}`);
+      if (!bundleData) {
+        return null;
+      }
+      return JSON.parse(bundleData);
+    } catch (error) {
+      console.error('Failed to load analysis bundle:', error);
+      return null;
+    }
+  }
+
+  getAllBundles(): AnalysisBundle[] {
+    const bundles: AnalysisBundle[] = [];
+    const keys = Object.keys(localStorage);
+
+    keys.forEach(key => {
+      if (key.startsWith(this.keyPrefix)) {
+        try {
+          const bundleData = localStorage.getItem(key);
+          if (bundleData) {
+            const bundle = JSON.parse(bundleData);
+            bundles.push(bundle);
+          }
+        } catch (error) {
+          console.warn(`Failed to parse bundle: ${key}`, error);
+        }
+      }
+    });
+
+    // Sort by timestamp (newest first)
+    return bundles.sort((a, b) => b.timestamp - a.timestamp);
+  }
+
+  deleteBundle(bundleId: string): void {
+    localStorage.removeItem(`${this.keyPrefix}${bundleId}`);
+    console.log(`Analysis bundle deleted: ${bundleId}`);
+  }
+
+  clearAllBundles(): void {
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.startsWith(this.keyPrefix)) {
+        localStorage.removeItem(key);
+      }
+    });
+    console.log('All analysis bundles cleared');
+  }
+
+  getBundleStats(): { count: number; totalSize: string } {
+    const keys = Object.keys(localStorage);
+    const bundleKeys = keys.filter(key => key.startsWith(this.keyPrefix));
+
+    let totalBytes = 0;
+    bundleKeys.forEach(key => {
+      const value = localStorage.getItem(key);
+      if (value) {
+        totalBytes += value.length;
+      }
+    });
+
+    return {
+      count: bundleKeys.length,
+      totalSize: `${(totalBytes / 1024).toFixed(2)} KB`
+    };
+  }
+}
+
+export const bundleManager = new BundleManager();
+
 export default ApiCache;
