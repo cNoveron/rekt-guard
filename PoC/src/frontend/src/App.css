@@ -37,6 +37,281 @@
   }
 }
 
+/* Call Tree Styles */
+.call-tree-section {
+  margin: 20px 0;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.call-tree-section h4 {
+  margin-bottom: 15px;
+  color: #2c3e50;
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+.call-tree-container {
+  overflow-x: auto;
+  border-radius: 6px;
+  border: 1px solid #e1e5e9;
+  background: white;
+}
+
+.call-tree-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.call-tree-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.call-tree-table thead th {
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #5a67d8;
+}
+
+.call-tree-table tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+  transition: background-color 0.15s ease;
+  height: 40px;
+}
+
+.call-tree-table tbody tr:hover {
+  background-color: #f7fafc;
+}
+
+.call-tree-table tbody tr:nth-child(even) {
+  background-color: #fafbfc;
+}
+
+.call-tree-table tbody tr:nth-child(even):hover {
+  background-color: #f1f5f9;
+}
+
+.call-tree-table td {
+  padding: 8px;
+  vertical-align: middle;
+  border-right: 1px solid #e2e8f0;
+  height: 40px;
+}
+
+.call-tree-table td:last-child {
+  border-right: none;
+}
+
+.call-tree-table td:first-child {
+  padding: 0 !important;
+}
+
+/* Hierarchy Cell Styling */
+.hierarchy-cell {
+  min-width: 200px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', 'Menlo', 'Consolas', monospace;
+  font-size: 14px;
+  white-space: nowrap;
+  padding: 0 !important;
+  vertical-align: middle;
+  line-height: 1.2;
+  position: relative;
+}
+
+.hierarchy-text {
+  color: #718096;
+  font-weight: 600;
+  margin-right: 8px;
+  user-select: none;
+  display: inline-block;
+  padding: 8px 0 8px 8px;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.call-type {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.call-type {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+/* Call type specific colors */
+.call-tree-row .call-type:contains("CALL") {
+  background: #bee3f8;
+  color: #2b6cb0;
+}
+
+.call-tree-row .call-type:contains("STATICCALL") {
+  background: #c6f6d5;
+  color: #276749;
+}
+
+.call-tree-row .call-type:contains("DELEGATECALL") {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.call-tree-row .call-type:contains("CREATE") {
+  background: #feebc8;
+  color: #c05621;
+}
+
+.call-tree-row .call-type:contains("CREATE2") {
+  background: #fbb6ce;
+  color: #b83280;
+}
+
+/* Contract Cell Styling */
+.contract-cell {
+  min-width: 250px;
+}
+
+.contract-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contract-info .address {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 11px;
+  background: #f7fafc;
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: #4a5568;
+  border: 1px solid #e2e8f0;
+}
+
+.contract-info .contract-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+/* Function Cell Styling */
+.function-cell {
+  min-width: 150px;
+}
+
+.function-name {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 11px;
+  background: #edf2f7;
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: #4a5568;
+  display: inline-block;
+}
+
+.from-address {
+  margin-top: 2px;
+}
+
+.from-address small {
+  color: #718096;
+  font-size: 10px;
+}
+
+/* Gas Cell Styling */
+.gas-cell {
+  text-align: right;
+  min-width: 100px;
+}
+
+.gas-amount {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+/* Value Cell Styling */
+.value-cell {
+  text-align: right;
+  min-width: 80px;
+}
+
+.value-amount {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+/* Depth-based indentation and styling */
+.call-tree-row.depth-0 {
+  background-color: #fff;
+  font-weight: 600;
+}
+
+.call-tree-row.depth-1 {
+  background-color: #f8f9fa;
+}
+
+.call-tree-row.depth-2 {
+  background-color: #f1f3f4;
+}
+
+.call-tree-row.depth-3 {
+  background-color: #e8eaed;
+}
+
+.call-tree-row.depth-4 {
+  background-color: #e1e3e6;
+}
+
+.call-tree-row.depth-5 {
+  background-color: #dadce0;
+}
+
+.call-tree-row.depth-6 {
+  background-color: #d3d5da;
+}
+
+.call-tree-row.depth-7 {
+  background-color: #ccced4;
+}
+
+.call-tree-row.depth-8 {
+  background-color: #c5c7cd;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .call-tree-container {
+    font-size: 11px;
+  }
+
+  .hierarchy-cell {
+    min-width: 150px;
+  }
+
+  .contract-cell {
+    min-width: 200px;
+  }
+
+  .function-cell {
+    min-width: 120px;
+  }
+}
+
 /* Contracts Summary Grid */
 .contracts-summary {
   margin: 20px 0;

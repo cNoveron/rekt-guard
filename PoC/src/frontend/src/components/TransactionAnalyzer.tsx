@@ -184,6 +184,89 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
     return value.toString();
   };
 
+  const getContractName = (address: string): string => {
+    const contractData = basicContractData.find(([addr, _]) => addr.toLowerCase() === address.toLowerCase());
+    return contractData ? contractData[1] : 'Unknown';
+  };
+
+  const renderCallTree = (traceData: any, contractData: [string, string][], depth: number = 0): React.ReactElement[] => {
+    const rows: React.ReactElement[] = [];
+
+    if (!traceData) return rows;
+
+    // Handle single call object or array of calls
+    const calls = Array.isArray(traceData) ? traceData : [traceData];
+
+    calls.forEach((call, index) => {
+      const indentChars = '│  '.repeat(depth);
+      const branchChar = index === calls.length - 1 ? '└─ ' : '├─ ';
+      const hierarchy = depth === 0 ? '' : `${indentChars}${branchChar}`;
+
+      const contractName = call.to ? getContractName(call.to) : 'Unknown';
+      const functionName = call.input && call.input.length > 10
+        ? `0x${call.input.slice(2, 10)}...`
+        : call.input || 'Unknown';
+      const gasUsed = call.gasUsed ? parseInt(call.gasUsed, 16) : 0;
+      const value = call.value ? parseInt(call.value, 16) : 0;
+
+      rows.push(
+        <tr key={`${depth}-${index}`} className={`call-tree-row depth-${depth}`}>
+          <td className="hierarchy-cell">
+            <span className="hierarchy-text">{hierarchy}</span>
+            <span className="call-type">{call.type || 'CALL'}</span>
+          </td>
+          <td className="contract-cell">
+            <div className="contract-info">
+              <code className="address">{call.to || 'N/A'}</code>
+              <span className="contract-name">{contractName}</span>
+            </div>
+          </td>
+          <td className="function-cell">
+            <span className="function-name">{functionName}</span>
+            {call.from && (
+              <div className="from-address">
+                <small>from: {call.from.slice(0, 8)}...</small>
+              </div>
+            )}
+          </td>
+          <td className="gas-cell">
+            <span className="gas-amount">{gasUsed.toLocaleString()}</span>
+          </td>
+          <td className="value-cell">
+            <span className="value-amount">{formatValue(value.toString())} ETH</span>
+          </td>
+        </tr>
+      );
+
+      // Recursively render subcalls
+      if (call.calls && call.calls.length > 0) {
+        rows.push(...renderCallTree(call.calls, contractData, depth + 1));
+      }
+    });
+
+    return rows;
+  };
+
+  const countTotalCalls = (trace: any): number => {
+    if (!trace) return 0;
+
+    let count = 1; // Count the current call
+    if (trace.calls && Array.isArray(trace.calls)) {
+      count += trace.calls.reduce((total: number, call: any) => total + countTotalCalls(call), 0);
+    }
+    return count;
+  };
+
+  const getMaxDepth = (trace: any, depth: number = 0): number => {
+    if (!trace) return depth;
+
+    let maxDepth = depth;
+    if (trace.calls && Array.isArray(trace.calls)) {
+      maxDepth = Math.max(maxDepth, ...trace.calls.map((call: any) => getMaxDepth(call, depth + 1)));
+    }
+    return maxDepth;
+  };
+
   return (
     <div className="transaction-analyzer">
       <div className="analyzer-header">
@@ -269,26 +352,46 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
             </div>
           )}
 
+          {traceData && traceData.trace && (
+            <div className="call-tree-section">
+              <h4>Transaction Call Tree</h4>
+              <div className="call-tree-container">
+                <table className="call-tree-table">
+                  <thead>
+                    <tr>
+                      <th>Call Hierarchy</th>
+                      <th>Contract</th>
+                      <th>Function</th>
+                      <th>Gas Used</th>
+                      <th>Value</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {renderCallTree(traceData.trace, basicContractData)}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           {addresses && addresses.length > 0 && (
-            <div className="contracts-involved">
-              <h4>Contracts Involved</h4>
+            <div className="contracts-summary">
+              <h4>Contracts Summary</h4>
               {contractDataLoading && (
                 <p className="loading-indicator">Loading contract names...</p>
               )}
-              <div className="contracts-list">
+              <div className="contracts-grid">
                 {addresses.map((address: string, index: number) => {
                   // Find the contract name from basicContractData
                   const contractData = basicContractData.find(([addr, _]) => addr.toLowerCase() === address.toLowerCase());
                   const contractName = contractData ? contractData[1] : 'Loading...';
 
                   return (
-                    <div key={index} className="contract-item">
+                    <div key={index} className="contract-summary-item">
                       <div className="contract-address">
-                        <strong>Address:</strong>
                         <code>{address}</code>
                       </div>
                       <div className="contract-name">
-                        <strong>Name:</strong>
                         <span className={`contract-name-value ${contractName === 'Loading...' ? 'loading' : ''}`}>
                           {contractName}
                         </span>
