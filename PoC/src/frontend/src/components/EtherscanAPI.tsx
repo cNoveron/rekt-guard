@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { contractCache } from '../utils/ApiCache';
 
 interface ContractInfo {
   address: string;
@@ -19,7 +20,6 @@ interface EtherscanResponse {
 class EtherscanAPI {
   private apiKey: string;
   private baseUrl: string = 'https://api.etherscan.io/api';
-  private cache: Map<string, any> = new Map();
 
   constructor() {
     // Use environment variable or fallback to no key (rate limited)
@@ -27,11 +27,13 @@ class EtherscanAPI {
   }
 
   private async makeRequest(params: Record<string, string>): Promise<any> {
-    const cacheKey = JSON.stringify(params);
+    const cacheKey = `etherscan_${JSON.stringify(params)}`;
 
     // Check cache first
-    if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
+    const cached = contractCache.get(cacheKey);
+    if (cached !== null) {
+      console.log(`Etherscan cache hit for: ${params.address || params.txhash || 'request'}`);
+      return cached;
     }
 
     try {
@@ -40,12 +42,13 @@ class EtherscanAPI {
         ...(this.apiKey && { apikey: this.apiKey })
       });
 
+      console.log(`Etherscan API call for: ${params.address || params.txhash || 'request'}`);
       const response = await axios.get(`${this.baseUrl}?${queryParams.toString()}`);
       const data: EtherscanResponse = response.data;
 
       if (data.status === '1') {
-        // Cache successful responses
-        this.cache.set(cacheKey, data.result);
+        // Cache successful responses for 24 hours
+        contractCache.set(cacheKey, data.result, 24 * 60 * 60 * 1000);
         return data.result;
       } else {
         console.warn('Etherscan API warning:', data.message);
@@ -64,23 +67,39 @@ class EtherscanAPI {
   }
 
   async getContractName(address: string): Promise<string> {
+    // Check specific contract name cache first
+    const cachedName = contractCache.getCachedContractName(address);
+    if (cachedName) {
+      console.log(`Contract name cache hit for: ${address}`);
+      return cachedName;
+    }
+
+    // Check well-known contracts first (no API call needed)
+    const wellKnownName = this.getWellKnownContractName(address);
+    if (wellKnownName) {
+      contractCache.cacheContractName(address, wellKnownName);
+      return wellKnownName;
+    }
+
     try {
       const contractInfo = await this.getContractInfo(address);
 
       if (contractInfo?.isVerified) {
-        return contractInfo.name || contractInfo.contractName || 'Unknown Contract';
+        const name = contractInfo.name || contractInfo.contractName || 'Unknown Contract';
+        contractCache.cacheContractName(address, name);
+        return name;
       }
 
       // If not verified, try to get basic info
       const basicInfo = await this.getAddressInfo(address);
-      if (basicInfo?.contractCreator) {
-        return 'Unverified Contract';
-      }
-
-      return 'EOA'; // Externally Owned Account
+      const name = basicInfo?.isContract ? 'Unverified Contract' : 'EOA';
+      contractCache.cacheContractName(address, name);
+      return name;
     } catch (error) {
       console.error(`Error getting contract name for ${address}:`, error);
-      return 'Unknown';
+      const fallbackName = 'Unknown';
+      contractCache.cacheContractName(address, fallbackName);
+      return fallbackName;
     }
   }
 
@@ -198,7 +217,7 @@ class EtherscanAPI {
 
   // Clear cache if needed
   clearCache(): void {
-    this.cache.clear();
+    contractCache.clear();
   }
 }
 

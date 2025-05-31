@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { ethers } from 'ethers';
+import { transactionCache, simulationCache } from '../utils/ApiCache';
 
 interface TenderlyConfig {
   accountSlug: string;
@@ -96,10 +97,20 @@ export const TenderlyDebugger: React.FC = () => {
 // Utility function to make Tenderly API calls
 export const tenderlyAPI = {
   async getTransactionData(txHash: string): Promise<any> {
+    const cacheKey = `tx_data_${txHash.toLowerCase()}`;
+
+    // Check cache first
+    const cached = transactionCache.get(cacheKey);
+    if (cached) {
+      console.log(`Transaction data cache hit for: ${txHash}`);
+      return cached;
+    }
+
     try {
       // Use Infura or Alchemy as a fallback RPC provider
       const provider = new ethers.JsonRpcProvider(`https://mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_API_KEY}`);
 
+      console.log(`Fetching transaction data for: ${txHash}`);
       // Fetch the transaction and receipt
       const [tx, receipt] = await Promise.all([
         provider.getTransaction(txHash),
@@ -110,11 +121,15 @@ export const tenderlyAPI = {
         throw new Error('Transaction not found');
       }
 
-      return {
+      const result = {
         transaction: tx,
         receipt: receipt,
         blockNumber: tx.blockNumber
       };
+
+      // Cache for 7 days
+      transactionCache.set(cacheKey, result, 7 * 24 * 60 * 60 * 1000);
+      return result;
     } catch (error) {
       console.error('Error fetching transaction data:', error);
       throw error;
@@ -290,6 +305,13 @@ export const tenderlyAPI = {
       txHash = '0x7e7f9548f301d3dd863eac94e6190cb742ab6aa9d7730549ff743bf84cbd21d1';
     }
 
+    // Check cache first
+    const cached = transactionCache.getCachedTransactionTrace(txHash);
+    if (cached) {
+      console.log(`Transaction trace cache hit for: ${txHash}`);
+      return cached;
+    }
+
     try {
       console.log(`Tracing transaction: ${txHash}`);
 
@@ -316,11 +338,15 @@ export const tenderlyAPI = {
       console.log('Trace data received:', response.data);
 
       if (response.data.result) {
-        // Convert the call trace to our expected format
-        return {
-          trace: this.convertCallTraceToExecutionTrace([response.data.result]),
+        // Return the raw call trace data for proper tree display
+        const result = {
+          trace: response.data.result,
           source: 'tenderly_node'
         };
+
+        // Cache the trace for 7 days
+        transactionCache.cacheTransactionTrace(txHash, result);
+        return result;
       } else if (response.data.error) {
         throw new Error(`Tenderly Node API error: ${response.data.error.message}`);
       }

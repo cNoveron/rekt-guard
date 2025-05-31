@@ -7,6 +7,7 @@ import { CalldataViewer } from './components/CalldataViewer';
 import { MemoryViewer } from './components/MemoryViewer';
 import { ReturnDataViewer } from './components/ReturnDataViewer';
 import { EtherscanConfig } from './components/EtherscanAPI';
+import { CacheManager } from './components/CacheManager';
 
 const ATTACK_TX_HASH = '0x7e7f9548f301d3dd863eac94e6190cb742ab6aa9d7730549ff743bf84cbd21d1';
 
@@ -46,6 +47,7 @@ function App() {
         <div className="api-status">
           <TenderlyDebugger />
           <EtherscanConfig />
+          <CacheManager />
         </div>
       </header>
 
