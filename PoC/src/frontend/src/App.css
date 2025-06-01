@@ -65,7 +65,6 @@
   border-collapse: collapse;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 13px;
-  line-height: 1.4;
 }
 
 .call-tree-table thead {
@@ -86,7 +85,6 @@
 .call-tree-table tbody tr {
   border-bottom: 1px solid #e2e8f0;
   transition: background-color 0.15s ease;
-  height: 40px;
 }
 
 .call-tree-table tbody tr:hover {
@@ -102,10 +100,10 @@
 }
 
 .call-tree-table td {
-  padding: 8px;
+  padding: 0 5px !important;
   vertical-align: middle;
   border-right: 1px solid #e2e8f0;
-  height: 40px;
+  width: 20vw;
 }
 
 .call-tree-table td:last-child {
@@ -126,15 +124,14 @@
   vertical-align: middle;
   line-height: 1.2;
   position: relative;
+  display: flex;
 }
 
 .hierarchy-text {
   color: #718096;
   font-weight: 600;
-  margin-right: 8px;
   user-select: none;
   display: inline-block;
-  padding: 8px 0 8px 8px;
   font-size: 14px;
   letter-spacing: 0.5px;
 }
@@ -187,10 +184,11 @@
   min-width: 250px;
 }
 
-.contract-info {
+.contract-info, .function-info {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
 }
 
 .contract-info .address {
@@ -201,17 +199,22 @@
   border-radius: 3px;
   color: #4a5568;
   border: 1px solid #e2e8f0;
+  flex-shrink: 0;
 }
 
 .contract-info .contract-name {
   font-size: 12px;
   font-weight: 600;
   color: #2d3748;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Function Cell Styling */
 .function-cell {
   min-width: 150px;
+  width: 20%;
 }
 
 .function-name {
@@ -221,11 +224,15 @@
   padding: 2px 4px;
   border-radius: 3px;
   color: #4a5568;
-  display: inline-block;
+  display: flex;
+  min-width: 90px;
 }
 
 .from-address {
   margin-top: 2px;
+  margin-left: 8px;
+  display: inline-block;
+  min-width: 110px;
 }
 
 .from-address small {
@@ -258,7 +265,6 @@
 /* Depth-based indentation and styling */
 .call-tree-row.depth-0 {
   background-color: #fff;
-  font-weight: 600;
 }
 
 .call-tree-row.depth-1 {

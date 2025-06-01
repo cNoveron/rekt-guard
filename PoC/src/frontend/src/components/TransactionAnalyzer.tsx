@@ -222,12 +222,14 @@ export const TransactionAnalyzer: React.FC<TransactionAnalyzerProps> = ({
             </div>
           </td>
           <td className="function-cell">
+            <div className="function-info">
             <span className="function-name">{functionName}</span>
-            {call.from && (
-              <div className="from-address">
-                <small>from: {call.from.slice(0, 8)}...</small>
-              </div>
-            )}
+              {call.from && (
+                <div className="from-address">
+                  <small>from: {call.from.slice(0, 8)}...</small>
+                </div>
+              )}
+            </div>
           </td>
           <td className="gas-cell">
             <span className="gas-amount">{gasUsed.toLocaleString()}</span>
