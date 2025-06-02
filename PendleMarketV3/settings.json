@@ -1,0 +1,25 @@
+{
+	"optimizer": {
+		"enabled": true,
+		"runs": 1000000
+	},
+	"viaIR": true,
+	"evmVersion": "paris",
+	"outputSelection": {
+		"*": {
+			"*": [
+				"evm.bytecode",
+				"evm.deployedBytecode",
+				"devdoc",
+				"userdoc",
+				"metadata",
+				"abi"
+			]
+		}
+	},
+	"libraries": {
+		"contracts/pendle/contracts/core/Market/OracleLib.sol": {
+			"OracleLib": "0x83d6fa7f8904299f4a9499fe83b6ae3f21ffba57"
+		}
+	}
+}

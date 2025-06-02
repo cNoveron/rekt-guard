@@ -1,0 +1,1018 @@
+{
+  "tags": [
+    {
+      "key": "state_variable_not_initialized",
+      "type": "contractRisk",
+      "severity": 2
+    },
+    {
+      "key": "arbitrary_send_erc20",
+      "name": "Arbitrary Send ERC20",
+      "type": "contractRisk",
+      "severity": 5,
+      "description": "If you run an approval transaction on this contract, this will allow an attacker to take tokens directly from you to their wallet."
+    },
+    {
+      "key": "shadowing_state",
+      "name": "Shadowing State",
+      "type": "contractRisk",
+      "severity": 1,
+      "description": "The contract contains logic that due to variable naming, doesn't set certain variables, potentially enabling access to malicious users."
+    },
+    {
+      "key": "arbitrary_send_erc20",
+      "name": "Arbitrary Send ERC20",
+      "type": "contractRisk",
+      "severity": 2,
+      "description": "If you run an approval transaction on this contract, this will allow an attacker to take tokens directly from you to their wallet."
+    },
+    {
+      "key": "arbitrary_send_erc20",
+      "name": "Arbitrary Send ERC20",
+      "type": "contractRisk",
+      "severity": 2,
+      "description": "If you run an approval transaction on this contract, this will allow an attacker to take tokens directly from you to their wallet."
+    },
+    {
+      "key": "divide_before_multiply",
+      "name": "Faulty Calculations",
+      "type": "contractRisk",
+      "severity": 12.25,
+      "description": "Division is done before multiplication, causing precision loss in integer math."
+    },
+    {
+      "key": "unused_return",
+      "type": "contractRisk",
+      "severity": 0.25
+    }
+  ],
+  "score": 23.5,
+  "analysis": [
+    {
+      "check": "arbitrary_send_erc20",
+      "impact": "high",
+      "detector": "crytic",
+      "confidence": "high",
+      "description": "TokenHelper._transferIn(address,address,uint256) (contracts/pendle/contracts/core/libraries/TokenHelper.sol#14-17) uses arbitrary from in transferFrom: IERC20(token).safeTransferFrom(from,address(this),amount) (contracts/pendle/contracts/core/libraries/TokenHelper.sol#16)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/TokenHelper.sol",
+      "affected_lines": {
+        "to": 17,
+        "from": 14
+      }
+    },
+    {
+      "check": "arbitrary_send_erc20",
+      "impact": "high",
+      "detector": "crytic",
+      "confidence": "high",
+      "description": "TokenHelper._transferFrom(IERC20,address,address,uint256) (contracts/pendle/contracts/core/libraries/TokenHelper.sol#19-21) uses arbitrary from in transferFrom: token.safeTransferFrom(from,to,amount) (contracts/pendle/contracts/core/libraries/TokenHelper.sol#20)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/TokenHelper.sol",
+      "affected_lines": {
+        "to": 21,
+        "from": 19
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- term = ((term * x) / ONE_20) / 4 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#192)\n \t- term = ((term * x) / ONE_20) / 5 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#195)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- a = (a * ONE_20) / a8 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#375)\n \t- a = (a * ONE_20) / a9 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#380)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- product = (product * a3) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#144)\n \t- product = (product * a4) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#148)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- z_squared = (z * z) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#402)\n \t- num = (num * z_squared) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#411)\n \t- num = (num * z_squared) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#414)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- product = (product * a2) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#140)\n \t- product = (product * a3) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#144)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- term = ((term * x) / ONE_20) / 3 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#189)\n \t- term = ((term * x) / ONE_20) / 4 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#192)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- z = ((a - ONE_20) * ONE_20) / (a + ONE_20) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#401)\n \t- z_squared = (z * z) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#402)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#445-494) performs a multiplication on the result of a division:\n \t- z_squared = (z * z) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#459)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#471)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#474)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 494,
+        "from": 445
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- product = (product * a5) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#152)\n \t- product = (product * a6) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#156)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- a = (a * ONE_20) / a10 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#385)\n \t- a = (a * ONE_20) / a11 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#390)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- z_squared = (z * z) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#402)\n \t- num = (num * z_squared) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#417)\n \t- num = (num * z_squared) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#420)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- product = (product * a4) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#148)\n \t- product = (product * a5) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#152)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#445-494) performs a multiplication on the result of a division:\n \t- z_squared = (z * z) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#459)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#477)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#480)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 494,
+        "from": 445
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#445-494) performs a multiplication on the result of a division:\n \t- z_squared = (z * z) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#459)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#480)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#483)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 494,
+        "from": 445
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- a = (a * ONE_20) / a9 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#380)\n \t- a = (a * ONE_20) / a10 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#385)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- z_squared = (z * z) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#402)\n \t- num = (num * z_squared) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#414)\n \t- num = (num * z_squared) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#417)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#445-494) performs a multiplication on the result of a division:\n \t- z_squared = (z * z) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#459)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#468)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#471)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 494,
+        "from": 445
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- product = (product * a7) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#160)\n \t- product = (product * a8) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#164)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- product = (product * a8) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#164)\n \t- product = (product * a9) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#168)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#445-494) performs a multiplication on the result of a division:\n \t- z = ((x - ONE_36) * ONE_36) / (x + ONE_36) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#458)\n \t- z_squared = (z * z) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#459)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 494,
+        "from": 445
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- term = ((term * x) / ONE_20) / 8 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#204)\n \t- term = ((term * x) / ONE_20) / 9 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#207)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- a = (a * ONE_20) / a6 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#365)\n \t- a = (a * ONE_20) / a7 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#370)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- term = ((term * x) / ONE_20) / 5 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#195)\n \t- term = ((term * x) / ONE_20) / 6 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#198)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- term = ((term * x) / ONE_20) / 6 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#198)\n \t- term = ((term * x) / ONE_20) / 7 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#201)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#445-494) performs a multiplication on the result of a division:\n \t- z_squared = (z * z) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#459)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#474)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#477)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 494,
+        "from": 445
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#445-494) performs a multiplication on the result of a division:\n \t- z = ((x - ONE_36) * ONE_36) / (x + ONE_36) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#458)\n \t- num = z (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#462)\n \t- seriesSum = num (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#465)\n \t- seriesSum * 2 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#492)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 494,
+        "from": 445
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- product = (product * a6) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#156)\n \t- product = (product * a7) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#160)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- a = (a * ONE_20) / a3 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#350)\n \t- a = (a * ONE_20) / a4 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#355)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- a = (a * ONE_20) / a3 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#350)\n \t- a = (a * ONE_20) / a5 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#360)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- (((product * seriesSum) / ONE_20) * firstAN) / 100 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#226)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- z = ((a - ONE_20) * ONE_20) / (a + ONE_20) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#401)\n \t- z_squared = (z * z) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#402)\n \t- num = z (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#405)\n \t- num = (num * z_squared) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#411)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- term = ((term * x) / ONE_20) / 11 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#213)\n \t- term = ((term * x) / ONE_20) / 12 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#216)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- a = (a * ONE_20) / a5 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#360)\n \t- a = (a * ONE_20) / a6 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#365)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#445-494) performs a multiplication on the result of a division:\n \t- z_squared = (z * z) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#459)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#483)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#486)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 494,
+        "from": 445
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- term = ((term * x) / ONE_20) / 10 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#210)\n \t- term = ((term * x) / ONE_20) / 11 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#213)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "PendleGauge._calcVeBoostedLpBalance(address,uint256) (contracts/pendle/contracts/core/Market/PendleGauge.sol#74-84) performs a multiplication on the result of a division:\n \t- veBoostedLpBalance += (((_totalStaked() * vePendleBalance) / vePendleSupply) * (100 - TOKENLESS_PRODUCTION)) / 100 (contracts/pendle/contracts/core/Market/PendleGauge.sol#79-81)\n",
+      "code_location": "contracts/pendle/contracts/core/Market/PendleGauge.sol",
+      "affected_lines": {
+        "to": 84,
+        "from": 74
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- a = (a * ONE_20) / a2 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#345)\n \t- a = (a * ONE_20) / a4 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#355)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "MarketMathCore.addLiquidityCore(MarketState,int256,int256,uint256) (contracts/pendle/contracts/core/Market/MarketMathCore.sol#124-166) performs a multiplication on the result of a division:\n \t- netLpBySy = (syDesired * market.totalLp) / market.totalSy (contracts/pendle/contracts/core/Market/MarketMathCore.sol#146)\n \t- lpToAccount = netLpBySy (contracts/pendle/contracts/core/Market/MarketMathCore.sol#152)\n \t- ptUsed = (market.totalPt * lpToAccount).rawDivUp(market.totalLp) (contracts/pendle/contracts/core/Market/MarketMathCore.sol#154)\n",
+      "code_location": "contracts/pendle/contracts/core/Market/MarketMathCore.sol",
+      "affected_lines": {
+        "to": 166,
+        "from": 124
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#445-494) performs a multiplication on the result of a division:\n \t- z = ((x - ONE_36) * ONE_36) / (x + ONE_36) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#458)\n \t- z_squared = (z * z) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#459)\n \t- num = z (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#462)\n \t- num = (num * z_squared) / ONE_36 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#468)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 494,
+        "from": 445
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- z = ((a - ONE_20) * ONE_20) / (a + ONE_20) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#401)\n \t- num = z (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#405)\n \t- seriesSum = num (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#408)\n \t- seriesSum *= 2 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#429)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- a /= a1 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#334)\n \t- a *= 100 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#340)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- z_squared = (z * z) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#402)\n \t- num = (num * z_squared) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#420)\n \t- num = (num * z_squared) / ONE_20 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#423)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "MarketMathCore.addLiquidityCore(MarketState,int256,int256,uint256) (contracts/pendle/contracts/core/Market/MarketMathCore.sol#124-166) performs a multiplication on the result of a division:\n \t- netLpBySy = (syDesired * market.totalLp) / market.totalSy (contracts/pendle/contracts/core/Market/MarketMathCore.sol#146)\n \t- syUsed = (market.totalSy * lpToAccount).rawDivUp(market.totalLp) (contracts/pendle/contracts/core/Market/MarketMathCore.sol#150)\n \t- lpToAccount = netLpBySy (contracts/pendle/contracts/core/Market/MarketMathCore.sol#152)\n",
+      "code_location": "contracts/pendle/contracts/core/Market/MarketMathCore.sol",
+      "affected_lines": {
+        "to": 166,
+        "from": 124
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- term = ((term * x) / ONE_20) / 2 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#186)\n \t- term = ((term * x) / ONE_20) / 3 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#189)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.pow(uint256,uint256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#250-298) performs a multiplication on the result of a division:\n \t- logx_times_y = ((ln_36_x / ONE_18) * y_int256 + ((ln_36_x % ONE_18) * y_int256) / ONE_18) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#284)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 298,
+        "from": 250
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- a /= a1 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#334)\n \t- a = (a * ONE_20) / a2 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#345)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#303-437) performs a multiplication on the result of a division:\n \t- a = (a * ONE_20) / a7 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#370)\n \t- a = (a * ONE_20) / a8 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#375)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 437,
+        "from": 303
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- term = ((term * x) / ONE_20) / 9 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#207)\n \t- term = ((term * x) / ONE_20) / 10 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#210)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "divide_before_multiply",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#91-228) performs a multiplication on the result of a division:\n \t- term = ((term * x) / ONE_20) / 7 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#201)\n \t- term = ((term * x) / ONE_20) / 8 (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol#204)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "event_setter",
+      "impact": "low",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "Setter function PendleMarketV3.skim() (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol#223-229) does not emit an event\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 229,
+        "from": 223
+      }
+    },
+    {
+      "check": "event_setter",
+      "impact": "low",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "Setter function MarketMathCore.setInitialLnImpliedRate(MarketState,PYIndex,int256,uint256) (contracts/pendle/contracts/core/Market/MarketMathCore.sol#388-416) does not emit an event\n",
+      "code_location": "contracts/pendle/contracts/core/Market/MarketMathCore.sol",
+      "affected_lines": {
+        "to": 416,
+        "from": 388
+      }
+    },
+    {
+      "check": "event_setter",
+      "impact": "low",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "Setter function PendleMarketV3.constructor(address,int256,int256,uint80,address,address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol#60-83) does not emit an event\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 83,
+        "from": 60
+      }
+    },
+    {
+      "check": "incorrect_inheritance_order",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "low",
+      "description": "PendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function totalActiveSupply from ['IPMarketV3', 'PendleGauge']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function activeBalance from ['IPMarketV3', 'PendleGauge']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function name from ['IPMarketV3', 'PendleERC20']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function symbol from ['IPMarketV3', 'PendleERC20']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function decimals from ['IPMarketV3', 'PendleERC20']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function totalSupply from ['IPMarketV3', 'PendleERC20']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function balanceOf from ['IPMarketV3', 'PendleERC20']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function transfer from ['IPMarketV3', 'PendleERC20']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function allowance from ['IPMarketV3', 'PendleERC20']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function approve from ['IPMarketV3', 'PendleERC20']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function transferFrom from ['IPMarketV3', 'PendleERC20']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function constructor from ['PendleGauge', 'PendleERC20']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function _beforeTokenTransfer from ['PendleGauge', 'PendleERC20']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function _afterTokenTransfer from ['PendleGauge', 'PendleERC20']\nPendleMarketV3 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:18-360) PendleMarketV3 inherits function slitherConstructorConstantVariables from ['PendleERC20', 'PendleGauge']\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 360,
+        "from": 18
+      }
+    },
+    {
+      "check": "initialize_permission",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "MarketMathCore.setInitialLnImpliedRate(MarketState,PYIndex,int256,uint256) (contracts/pendle/contracts/core/Market/MarketMathCore.sol:388-416) does not properly initialize state variables used in its conditions.\n\n",
+      "code_location": "contracts/pendle/contracts/core/Market/MarketMathCore.sol",
+      "affected_lines": {
+        "to": 416,
+        "from": 388
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "addLiquidityCore(MarketState,int256,int256,uint256)  reuses state variables:\n    - MarketMathCore.addLiquidityCore(MarketState,int256,int256,uint256) (contracts/pendle/contracts/core/Market/MarketMathCore.sol:124-166) resuse state variables: \n        -  MINIMUM_LIQUIDITY  is resused. Consider using local variable.\n    - MarketMathCore._getExchangeRate(int256,int256,int256,int256,int256) (contracts/pendle/contracts/core/Market/MarketMathCore.sol:354-373) resuse state variables: \n        -  MAX_MARKET_PROPORTION  is resused. Consider using local variable.\n    - MarketMathCore.slitherConstructorConstantVariables() (contracts/pendle/contracts/core/Market/MarketMathCore.sol:35-417) resuse state variables: \n        -  DAY  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/Market/MarketMathCore.sol",
+      "affected_lines": {
+        "to": 166,
+        "from": 124
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "exp(int256)  reuses state variables:\n    - LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:91-228) resuse state variables: \n        -  ONE_20  is resused. Consider using local variable.\n        -  x0  is resused. Consider using local variable.\n        -  x1  is resused. Consider using local variable.\n        -  x2  is resused. Consider using local variable.\n        -  x3  is resused. Consider using local variable.\n        -  x4  is resused. Consider using local variable.\n        -  x5  is resused. Consider using local variable.\n        -  x6  is resused. Consider using local variable.\n        -  x7  is resused. Consider using local variable.\n        -  x8  is resused. Consider using local variable.\n        -  x9  is resused. Consider using local variable.\n    - LogExpMath.pow(uint256,uint256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:250-298) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n    - LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:303-437) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n        -  ONE_20  is resused. Consider using local variable.\n        -  a0  is resused. Consider using local variable.\n        -  a1  is resused. Consider using local variable.\n        -  a10  is resused. Consider using local variable.\n        -  a11  is resused. Consider using local variable.\n        -  a2  is resused. Consider using local variable.\n        -  a3  is resused. Consider using local variable.\n        -  a4  is resused. Consider using local variable.\n        -  a5  is resused. Consider using local variable.\n        -  a6  is resused. Consider using local variable.\n        -  a7  is resused. Consider using local variable.\n        -  a8  is resused. Consider using local variable.\n        -  a9  is resused. Consider using local variable.\n    - LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:445-494) resuse state variables: \n        -  ONE_36  is resused. Consider using local variable.\n    - LogExpMath.slitherConstructorConstantVariables() (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:29-495) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n        -  ONE_20  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "swapExactPtForSy(address,uint256,bytes)  reuses state variables:\n    - PendleMarketV3.constructor(address,int256,int256,uint80,address,address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:60-83) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n    - PendleMarketV3.mint(address,uint256,uint256) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:93-125) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapExactPtForSy(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:161-184) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapSyForExactPt(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:196-220) resuse state variables: \n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.skim() (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:223-229) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.increaseObservationsCardinalityNext(uint16) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:259-266) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3.readState(address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:275-292) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3._writeState(MarketState) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:295-315) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 83,
+        "from": 60
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "slitherConstructorConstantVariables()  reuses state variables:\n    - LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:91-228) resuse state variables: \n        -  ONE_20  is resused. Consider using local variable.\n        -  x0  is resused. Consider using local variable.\n        -  x1  is resused. Consider using local variable.\n        -  x2  is resused. Consider using local variable.\n        -  x3  is resused. Consider using local variable.\n        -  x4  is resused. Consider using local variable.\n        -  x5  is resused. Consider using local variable.\n        -  x6  is resused. Consider using local variable.\n        -  x7  is resused. Consider using local variable.\n        -  x8  is resused. Consider using local variable.\n        -  x9  is resused. Consider using local variable.\n    - LogExpMath.pow(uint256,uint256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:250-298) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n    - LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:303-437) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n        -  ONE_20  is resused. Consider using local variable.\n        -  a0  is resused. Consider using local variable.\n        -  a1  is resused. Consider using local variable.\n        -  a10  is resused. Consider using local variable.\n        -  a11  is resused. Consider using local variable.\n        -  a2  is resused. Consider using local variable.\n        -  a3  is resused. Consider using local variable.\n        -  a4  is resused. Consider using local variable.\n        -  a5  is resused. Consider using local variable.\n        -  a6  is resused. Consider using local variable.\n        -  a7  is resused. Consider using local variable.\n        -  a8  is resused. Consider using local variable.\n        -  a9  is resused. Consider using local variable.\n    - LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:445-494) resuse state variables: \n        -  ONE_36  is resused. Consider using local variable.\n    - LogExpMath.slitherConstructorConstantVariables() (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:29-495) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n        -  ONE_20  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "pow(uint256,uint256)  reuses state variables:\n    - LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:91-228) resuse state variables: \n        -  ONE_20  is resused. Consider using local variable.\n        -  x0  is resused. Consider using local variable.\n        -  x1  is resused. Consider using local variable.\n        -  x2  is resused. Consider using local variable.\n        -  x3  is resused. Consider using local variable.\n        -  x4  is resused. Consider using local variable.\n        -  x5  is resused. Consider using local variable.\n        -  x6  is resused. Consider using local variable.\n        -  x7  is resused. Consider using local variable.\n        -  x8  is resused. Consider using local variable.\n        -  x9  is resused. Consider using local variable.\n    - LogExpMath.pow(uint256,uint256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:250-298) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n    - LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:303-437) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n        -  ONE_20  is resused. Consider using local variable.\n        -  a0  is resused. Consider using local variable.\n        -  a1  is resused. Consider using local variable.\n        -  a10  is resused. Consider using local variable.\n        -  a11  is resused. Consider using local variable.\n        -  a2  is resused. Consider using local variable.\n        -  a3  is resused. Consider using local variable.\n        -  a4  is resused. Consider using local variable.\n        -  a5  is resused. Consider using local variable.\n        -  a6  is resused. Consider using local variable.\n        -  a7  is resused. Consider using local variable.\n        -  a8  is resused. Consider using local variable.\n        -  a9  is resused. Consider using local variable.\n    - LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:445-494) resuse state variables: \n        -  ONE_36  is resused. Consider using local variable.\n    - LogExpMath.slitherConstructorConstantVariables() (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:29-495) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n        -  ONE_20  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "_ln_36(int256)  reuses state variables:\n    - LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:91-228) resuse state variables: \n        -  ONE_20  is resused. Consider using local variable.\n        -  x0  is resused. Consider using local variable.\n        -  x1  is resused. Consider using local variable.\n        -  x2  is resused. Consider using local variable.\n        -  x3  is resused. Consider using local variable.\n        -  x4  is resused. Consider using local variable.\n        -  x5  is resused. Consider using local variable.\n        -  x6  is resused. Consider using local variable.\n        -  x7  is resused. Consider using local variable.\n        -  x8  is resused. Consider using local variable.\n        -  x9  is resused. Consider using local variable.\n    - LogExpMath.pow(uint256,uint256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:250-298) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n    - LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:303-437) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n        -  ONE_20  is resused. Consider using local variable.\n        -  a0  is resused. Consider using local variable.\n        -  a1  is resused. Consider using local variable.\n        -  a10  is resused. Consider using local variable.\n        -  a11  is resused. Consider using local variable.\n        -  a2  is resused. Consider using local variable.\n        -  a3  is resused. Consider using local variable.\n        -  a4  is resused. Consider using local variable.\n        -  a5  is resused. Consider using local variable.\n        -  a6  is resused. Consider using local variable.\n        -  a7  is resused. Consider using local variable.\n        -  a8  is resused. Consider using local variable.\n        -  a9  is resused. Consider using local variable.\n    - LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:445-494) resuse state variables: \n        -  ONE_36  is resused. Consider using local variable.\n    - LogExpMath.slitherConstructorConstantVariables() (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:29-495) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n        -  ONE_20  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "readState(address)  reuses state variables:\n    - PendleMarketV3.constructor(address,int256,int256,uint80,address,address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:60-83) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n    - PendleMarketV3.mint(address,uint256,uint256) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:93-125) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapExactPtForSy(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:161-184) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapSyForExactPt(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:196-220) resuse state variables: \n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.skim() (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:223-229) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.increaseObservationsCardinalityNext(uint16) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:259-266) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3.readState(address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:275-292) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3._writeState(MarketState) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:295-315) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 83,
+        "from": 60
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "constructor(address,int256,int256,uint80,address,address)  reuses state variables:\n    - PendleMarketV3.constructor(address,int256,int256,uint80,address,address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:60-83) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n    - PendleMarketV3.mint(address,uint256,uint256) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:93-125) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapExactPtForSy(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:161-184) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapSyForExactPt(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:196-220) resuse state variables: \n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.skim() (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:223-229) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.increaseObservationsCardinalityNext(uint16) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:259-266) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3.readState(address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:275-292) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3._writeState(MarketState) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:295-315) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 83,
+        "from": 60
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "swapSyForExactPt(address,uint256,bytes)  reuses state variables:\n    - PendleMarketV3.constructor(address,int256,int256,uint80,address,address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:60-83) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n    - PendleMarketV3.mint(address,uint256,uint256) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:93-125) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapExactPtForSy(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:161-184) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapSyForExactPt(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:196-220) resuse state variables: \n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.skim() (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:223-229) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.increaseObservationsCardinalityNext(uint16) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:259-266) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3.readState(address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:275-292) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3._writeState(MarketState) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:295-315) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 83,
+        "from": 60
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "increaseObservationsCardinalityNext(uint16)  reuses state variables:\n    - PendleMarketV3.constructor(address,int256,int256,uint80,address,address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:60-83) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n    - PendleMarketV3.mint(address,uint256,uint256) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:93-125) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapExactPtForSy(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:161-184) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapSyForExactPt(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:196-220) resuse state variables: \n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.skim() (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:223-229) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.increaseObservationsCardinalityNext(uint16) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:259-266) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3.readState(address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:275-292) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3._writeState(MarketState) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:295-315) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 83,
+        "from": 60
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "skim()  reuses state variables:\n    - PendleMarketV3.constructor(address,int256,int256,uint80,address,address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:60-83) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n    - PendleMarketV3.mint(address,uint256,uint256) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:93-125) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapExactPtForSy(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:161-184) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapSyForExactPt(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:196-220) resuse state variables: \n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.skim() (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:223-229) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.increaseObservationsCardinalityNext(uint16) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:259-266) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3.readState(address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:275-292) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3._writeState(MarketState) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:295-315) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 83,
+        "from": 60
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "slitherConstructorConstantVariables()  reuses state variables:\n    - MarketMathCore.addLiquidityCore(MarketState,int256,int256,uint256) (contracts/pendle/contracts/core/Market/MarketMathCore.sol:124-166) resuse state variables: \n        -  MINIMUM_LIQUIDITY  is resused. Consider using local variable.\n    - MarketMathCore._getExchangeRate(int256,int256,int256,int256,int256) (contracts/pendle/contracts/core/Market/MarketMathCore.sol:354-373) resuse state variables: \n        -  MAX_MARKET_PROPORTION  is resused. Consider using local variable.\n    - MarketMathCore.slitherConstructorConstantVariables() (contracts/pendle/contracts/core/Market/MarketMathCore.sol:35-417) resuse state variables: \n        -  DAY  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/Market/MarketMathCore.sol",
+      "affected_lines": {
+        "to": 166,
+        "from": 124
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "_writeState(MarketState)  reuses state variables:\n    - PendleMarketV3.constructor(address,int256,int256,uint80,address,address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:60-83) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n    - PendleMarketV3.mint(address,uint256,uint256) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:93-125) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapExactPtForSy(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:161-184) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapSyForExactPt(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:196-220) resuse state variables: \n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.skim() (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:223-229) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.increaseObservationsCardinalityNext(uint16) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:259-266) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3.readState(address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:275-292) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3._writeState(MarketState) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:295-315) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 83,
+        "from": 60
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "_ln(int256)  reuses state variables:\n    - LogExpMath.exp(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:91-228) resuse state variables: \n        -  ONE_20  is resused. Consider using local variable.\n        -  x0  is resused. Consider using local variable.\n        -  x1  is resused. Consider using local variable.\n        -  x2  is resused. Consider using local variable.\n        -  x3  is resused. Consider using local variable.\n        -  x4  is resused. Consider using local variable.\n        -  x5  is resused. Consider using local variable.\n        -  x6  is resused. Consider using local variable.\n        -  x7  is resused. Consider using local variable.\n        -  x8  is resused. Consider using local variable.\n        -  x9  is resused. Consider using local variable.\n    - LogExpMath.pow(uint256,uint256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:250-298) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n    - LogExpMath._ln(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:303-437) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n        -  ONE_20  is resused. Consider using local variable.\n        -  a0  is resused. Consider using local variable.\n        -  a1  is resused. Consider using local variable.\n        -  a10  is resused. Consider using local variable.\n        -  a11  is resused. Consider using local variable.\n        -  a2  is resused. Consider using local variable.\n        -  a3  is resused. Consider using local variable.\n        -  a4  is resused. Consider using local variable.\n        -  a5  is resused. Consider using local variable.\n        -  a6  is resused. Consider using local variable.\n        -  a7  is resused. Consider using local variable.\n        -  a8  is resused. Consider using local variable.\n        -  a9  is resused. Consider using local variable.\n    - LogExpMath._ln_36(int256) (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:445-494) resuse state variables: \n        -  ONE_36  is resused. Consider using local variable.\n    - LogExpMath.slitherConstructorConstantVariables() (contracts/pendle/contracts/core/libraries/math/LogExpMath.sol:29-495) resuse state variables: \n        -  ONE_18  is resused. Consider using local variable.\n        -  ONE_20  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/math/LogExpMath.sol",
+      "affected_lines": {
+        "to": 228,
+        "from": 91
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "_getExchangeRate(int256,int256,int256,int256,int256)  reuses state variables:\n    - MarketMathCore.addLiquidityCore(MarketState,int256,int256,uint256) (contracts/pendle/contracts/core/Market/MarketMathCore.sol:124-166) resuse state variables: \n        -  MINIMUM_LIQUIDITY  is resused. Consider using local variable.\n    - MarketMathCore._getExchangeRate(int256,int256,int256,int256,int256) (contracts/pendle/contracts/core/Market/MarketMathCore.sol:354-373) resuse state variables: \n        -  MAX_MARKET_PROPORTION  is resused. Consider using local variable.\n    - MarketMathCore.slitherConstructorConstantVariables() (contracts/pendle/contracts/core/Market/MarketMathCore.sol:35-417) resuse state variables: \n        -  DAY  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/Market/MarketMathCore.sol",
+      "affected_lines": {
+        "to": 166,
+        "from": 124
+      }
+    },
+    {
+      "check": "reusing_state_variable",
+      "impact": "low",
+      "detector": "fuzzland",
+      "confidence": "medium",
+      "description": "mint(address,uint256,uint256)  reuses state variables:\n    - PendleMarketV3.constructor(address,int256,int256,uint80,address,address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:60-83) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n    - PendleMarketV3.mint(address,uint256,uint256) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:93-125) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapExactPtForSy(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:161-184) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.swapSyForExactPt(address,uint256,bytes) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:196-220) resuse state variables: \n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.skim() (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:223-229) resuse state variables: \n        -  PT  is resused. Consider using local variable.\n        -  SY  is resused. Consider using local variable.\n    - PendleMarketV3.increaseObservationsCardinalityNext(uint16) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:259-266) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3.readState(address) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:275-292) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n    - PendleMarketV3._writeState(MarketState) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:295-315) resuse state variables: \n        -  _storage  is resused. Consider using local variable.\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 83,
+        "from": 60
+      }
+    },
+    {
+      "check": "shadowing_state",
+      "impact": "high",
+      "detector": "crytic",
+      "confidence": "high",
+      "description": "PendleMarketV3.SY (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol#41) shadows:\n \t- PendleGauge.SY (contracts/pendle/contracts/core/Market/PendleGauge.sol#20)\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 41,
+        "from": 41
+      }
+    },
+    {
+      "check": "state_variable_not_initialized",
+      "impact": "high",
+      "detector": "fuzzland",
+      "confidence": "high",
+      "description": "state variable: PendleMarketV3.observations (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol:53) not initialized and not written in contract but be used in contract\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 53,
+        "from": 53
+      }
+    },
+    {
+      "check": "timestamp",
+      "impact": "low",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "MiniHelpers.isTimeInThePast(uint256) (contracts/pendle/contracts/core/libraries/MiniHelpers.sol#13-15) uses timestamp for comparisons\n \tDangerous comparisons:\n \t- (timestamp <= block.timestamp) (contracts/pendle/contracts/core/libraries/MiniHelpers.sol#14)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/MiniHelpers.sol",
+      "affected_lines": {
+        "to": 15,
+        "from": 13
+      }
+    },
+    {
+      "check": "timestamp",
+      "impact": "low",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "MiniHelpers.isCurrentlyExpired(uint256) (contracts/pendle/contracts/core/libraries/MiniHelpers.sol#5-7) uses timestamp for comparisons\n \tDangerous comparisons:\n \t- (expiry <= block.timestamp) (contracts/pendle/contracts/core/libraries/MiniHelpers.sol#6)\n",
+      "code_location": "contracts/pendle/contracts/core/libraries/MiniHelpers.sol",
+      "affected_lines": {
+        "to": 7,
+        "from": 5
+      }
+    },
+    {
+      "check": "timestamp",
+      "impact": "low",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "PendleMarketV3.mint(address,uint256,uint256) (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol#93-125) uses timestamp for comparisons\n \tDangerous comparisons:\n \t- lpToReserve != 0 (contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol#110)\n",
+      "code_location": "contracts/pendle/contracts/core/Market/v3/PendleMarketV3.sol",
+      "affected_lines": {
+        "to": 125,
+        "from": 93
+      }
+    },
+    {
+      "check": "unused_return",
+      "impact": "medium",
+      "detector": "crytic",
+      "confidence": "medium",
+      "description": "PendleGauge._redeemExternalReward() (contracts/pendle/contracts/core/Market/PendleGauge.sol#86-89) ignores return value by IStandardizedYield(SY).claimRewards(address(this)) (contracts/pendle/contracts/core/Market/PendleGauge.sol#87)\n",
+      "code_location": "contracts/pendle/contracts/core/Market/PendleGauge.sol",
+      "affected_lines": {
+        "to": 89,
+        "from": 86
+      }
+    }
+  ],
+  "deployer": {},
+  "expiresAt": 1748827600496,
+  "riskScore": "High Risk",
+  "categories": {
+    "contract_issues": {
+      "key": "contract_issues",
+      "name": "Contract Exploits",
+      "tags": {
+        "divide_before_multiply": true
+      },
+      "gradedDescription": {
+        "low": "Our detectors have found issues with this smart contract that may pose certain risks, but none are definitively exploitable.",
+        "high": "Our detectors have found, with high certainty, that this smart contract has exploitable logic that can result in a loss of funds or manipulation. This is a serious risk and you should avoid interacting with this contract.",
+        "medium": "Our detectors have found some logic in this smart contract that can cause a loss of funds if exploited. There is no immediate evidence that this logic was maliciously placed, but be careful."
+      }
+    },
+    "possible_drainer": {
+      "key": "possible_drainer",
+      "name": "Possible Drainer Contract",
+      "tags": {
+        "arbitrary_send_erc20": true
+      },
+      "description": "Our detectors have found that this smart contract has exploitable logic that can be used to drain funds. This is a serious risk and you should avoid interacting with this contract."
+    }
+  },
+  "analysis_type": "static",
+  "analysis_status": "done",
+  "isExpired": true,
+  "issues": [],
+  "fullAnalysis": true
+}

@@ -1,0 +1,11 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+
+# Despite the contracts original settings,
+# the EVM version should NOT be set to 'paris'
+# as it will cause some txs to fail.
+evm_version = "shanghai"
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
